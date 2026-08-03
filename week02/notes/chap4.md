@@ -100,3 +100,53 @@ Therefore, **underflow is one of the major causes of vanishing gradients.**
 - **Overflow:** Numbers become too large and are rounded to **Infinity (`∞`)**.
 - **Underflow:** Numbers become too small and are rounded to **0**.
 - Deep learning frameworks such as **PyTorch** provide numerically stable implementations (e.g., `torch.softmax`, `CrossEntropyLoss`, and `LogSoftmax`) to reduce these problems.
+
+---
+
+## Why is a Nearly Singular Matrix Problematic?
+
+**Answer:**
+
+A nearly singular matrix has a very small **singular value**, making its **condition number** very large.
+
+A large condition number means that even a tiny error in the input can produce a much larger error in the output.
+
+The matrix is still invertible, but numerical computations become unstable.
+
+**Key Idea:**
+
+> Poor conditioning means that small input errors are greatly amplified.
+
+
+---
+
+## Why Do Errors Keep Growing?
+
+**Answer:**
+
+Computers store numbers with limited precision, so every floating-point computation introduces a small **rounding error**.
+
+If a matrix is poorly conditioned, these small errors are amplified during computation.
+
+The amplified output error becomes the input of the next computation, causing errors to accumulate over many operations.
+
+**Key Idea:**
+
+> Numerical errors are not only propagated—they are amplified.
+
+
+---
+
+## Why Is This Important for Neural Networks?
+
+**Answer:**
+
+Training a neural network involves a large number of matrix operations.
+
+If some matrices are poorly conditioned, small numerical errors can be amplified repeatedly during forward and backward computations.
+
+As computations continue, these errors accumulate and may reduce numerical stability, making training more difficult.
+
+**Key Idea:**
+
+> Deep neural networks perform many matrix operations, so numerical stability is critical.

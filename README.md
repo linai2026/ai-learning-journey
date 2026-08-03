@@ -10,7 +10,7 @@ engineering role in Europe by April 2028.
 - Master's degree in mathematics
 - experience with Python and Java
 - Currently studying deep learning fundamentals
-- Weekly study time: 16 hours
+- Weekly study time: 20 hours
 
 ## Current Focus
 
