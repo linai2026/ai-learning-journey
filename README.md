@@ -2,7 +2,7 @@
 
 ## Goal
 
-My goal cd ai-learning-journeyis to become qualified for an AI or machine learning
+My goal is to become qualified for an AI or machine learning
 engineering role in Europe by April 2028.
 
 ## Current Background
