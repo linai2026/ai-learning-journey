@@ -150,3 +150,29 @@ As computations continue, these errors accumulate and may reduce numerical stabi
 **Key Idea:**
 
 > Deep neural networks perform many matrix operations, so numerical stability is critical.
+
+
+---
+
+## Why do we need the gradient?
+
+- A gradient is a vector of partial derivatives of the loss function.
+- It tells us the direction in which the loss increases the fastest.
+- By moving in the opposite direction (the negative gradient), we can reduce the loss efficiently.
+- This is much more effective than trying random directions.
+
+---
+
+## Why not search randomly?
+
+- Random search ignores information about the shape of the loss function.
+- The gradient uses local information to find the steepest descent direction.
+- In deep learning, models often have millions of parameters, making random search extremely inefficient.
+
+---
+
+## Why does the loss become smaller?
+
+- Parameters are updated in the direction of the negative gradient.
+- Each update usually reduces the loss.
+- Repeating this process gradually moves the parameters toward a local minimum, a global minimum, or a point where the gradient is close to zero.
