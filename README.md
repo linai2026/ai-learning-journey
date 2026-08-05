@@ -1,4 +1,4 @@
-# AI Learnin ai-learning-journeyg Journey
+# AI Learning Journey
 
 ## Goal
 
