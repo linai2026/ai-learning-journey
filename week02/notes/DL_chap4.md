@@ -176,3 +176,85 @@ As computations continue, these errors accumulate and may reduce numerical stabi
 - Parameters are updated in the direction of the negative gradient.
 - Each update usually reduces the loss.
 - Repeating this process gradually moves the parameters toward a local minimum, a global minimum, or a point where the gradient is close to zero.
+
+---
+
+## Local Minimum
+
+**Definition**
+
+A point where the loss is lower than every nearby point.
+
+**Key Idea**
+
+- Lowest only in a local neighborhood.
+- May not be the lowest point overall.
+
+---
+
+## Global Minimum
+
+**Definition**
+
+A point where the loss is the lowest over the entire parameter space.
+
+**Key Idea**
+
+- Lowest loss among all possible parameter values.
+
+---
+
+## Saddle Point
+
+**Definition**
+
+A critical point where the gradient is zero, but the point is neither a local minimum nor a local maximum.
+
+**Key Idea**
+
+- Some directions go uphill.
+- Some directions go downhill.
+- There is still a descending direction.
+
+---
+
+## Critical Point
+
+A point where the gradient is zero.
+
+A critical point can be:
+
+- Local Minimum
+- Local Maximum
+- Saddle Point
+
+**Important**
+
+Gradient = 0 **does NOT** necessarily mean the optimization has reached the optimum.
+
+---
+
+## Why Are Saddle Points a Bigger Problem?
+
+Deep neural networks usually have millions of parameters.
+
+To be a **Local Minimum**, **every** direction must have no descending path.
+
+If **even one** direction can still decrease the loss, the point becomes a **Saddle Point**.
+
+As the number of dimensions increases:
+
+- The probability of a Local Minimum decreases.
+- The number of Saddle Points increases dramatically.
+
+Therefore, modern deep neural networks are more likely to encounter **Saddle Points** than **Local Minima** during training.
+
+---
+
+## Key Takeaways
+
+- Local Minimum: lowest only nearby.
+- Global Minimum: lowest everywhere.
+- Saddle Point: gradient is zero, but some directions can still decrease the loss.
+- Gradient = 0 only indicates a **Critical Point**, not necessarily an optimum.
+- In high-dimensional optimization, Saddle Points are much more common than Local Minima.
