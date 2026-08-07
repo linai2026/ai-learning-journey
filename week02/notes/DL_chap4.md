@@ -6,12 +6,6 @@
 
 Overflow occurs when the absolute value of a number exceeds the maximum value that can be represented by a floating-point format. The value is rounded to **Infinity (`∞`)**.
 
-### My Understanding
-
-Computers do not store exact real numbers. Instead, they store approximate values using a finite number of bits.
-
-When a number becomes larger than the maximum representable floating-point value, it is stored as **Infinity**.
-
 ### Why Does It Happen?
 
 Computers have a limited number of bits to represent numbers.
@@ -57,12 +51,6 @@ These implementations are much safer than writing the equations manually.
 
 Underflow occurs when the absolute value of a number becomes smaller than the minimum value that can be represented by a floating-point format. The value is rounded to **0**.
 
-### My Understanding
-
-When a number becomes extremely close to zero, the computer can no longer distinguish it from zero.
-
-As a result, it is stored as **0**.
-
 ### Why Does It Happen?
 
 Floating-point numbers have both:
@@ -102,6 +90,8 @@ Therefore, **underflow is one of the major causes of vanishing gradients.**
 - Deep learning frameworks such as **PyTorch** provide numerically stable implementations (e.g., `torch.softmax`, `CrossEntropyLoss`, and `LogSoftmax`) to reduce these problems.
 
 ---
+***
+___
 
 ## Why is a Nearly Singular Matrix Problematic?
 
