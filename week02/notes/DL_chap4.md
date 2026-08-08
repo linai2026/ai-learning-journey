@@ -93,7 +93,9 @@ Therefore, **underflow is one of the major causes of vanishing gradients.**
 ***
 ___
 
-## Why is a Nearly Singular Matrix Problematic?
+## Poor Conditioning
+
+### Why is a Nearly Singular Matrix Problematic?
 
 **Answer:**
 
@@ -107,10 +109,9 @@ The matrix is still invertible, but numerical computations become unstable.
 
 > Poor conditioning means that small input errors are greatly amplified.
 
-
 ---
 
-## Why Do Errors Keep Growing?
+### Why Do Errors Keep Growing?
 
 **Answer:**
 
@@ -124,10 +125,9 @@ The amplified output error becomes the input of the next computation, causing er
 
 > Numerical errors are not only propagated—they are amplified.
 
-
 ---
 
-## Why Is This Important for Neural Networks?
+### Why Is This Important for Neural Networks?
 
 **Answer:**
 
@@ -141,8 +141,9 @@ As computations continue, these errors accumulate and may reduce numerical stabi
 
 > Deep neural networks perform many matrix operations, so numerical stability is critical.
 
-
 ---
+***
+___
 
 ## Why do we need the gradient?
 
