@@ -1,18 +1,18 @@
-# Chapter 1 Review
+# Numerical Computation Notes (Machine Learning Book - Chapter 1)
 
-What is Machine Learning?
+## What is Machine Learning?
 
 Machine Learning is a method that enables computers to learn patterns from data and make predictions or decisions without being explicitly programmed.
 
 ⸻
 
-What is Deep Learning?
+## What is Deep Learning?
 
 Deep Learning is a subset of Machine Learning that uses multi-layer neural networks to learn hierarchical representations of data.
 
 ⸻
 
-Types of Machine Learning
+## Types of Machine Learning
 
 Supervised Learning
 
@@ -31,7 +31,7 @@ Reinforcement Learning
 
 ⸻
 
-Classification vs. Regression
+## Classification vs. Regression
 
 Classification
 
@@ -45,13 +45,13 @@ Regression
 
 ⸻
 
-Clustering
+## Clustering
 
 Clustering groups similar data points into clusters without labels.
 
 ⸻
 
-Dimensionality Reduction
+### Dimensionality Reduction
 
 Dimensionality Reduction reduces the number of features while preserving as much important information as possible.
 
