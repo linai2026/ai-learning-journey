@@ -146,12 +146,6 @@ Prediction
 - Used only for the final evaluation.
 - Must remain completely unseen during model development.
 
-### Problems with Raw Data
 
-Without preprocessing, the model may face:
 
-- Different feature scales.
-- Missing values.
-- Categorical data that cannot be processed directly.
-- Noisy or duplicated data.
-- Poor feature representation.
+
