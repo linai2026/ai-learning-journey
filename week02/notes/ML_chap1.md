@@ -69,39 +69,25 @@ Main purposes:
 - The test set should only be used once after model selection.
 - Do **not** use the test set for training or model tuning.
 
----
-
-# Why Do We Need Data, Model, and Loss?
+## Why Do We Need Data, Model, and Loss?
 
 ### Data
-- Provides patterns for the model to learn.
+- Provides knowledge
 
 ### Model
-- Represents the relationship between the input and the output.
+- Learns the knowledge
 
 ### Loss
 - Measures how wrong the model's predictions are.
 - Guides the model to improve during training.
 
-**Summary**
-
-Data → Provides knowledge
-
-Model → Learns the knowledge
-
-Loss → Tells the model how wrong it is
-
----
-
-# Why Python?
+## Why Python?
 
 - Simple and easy to read.
 - Large and active ecosystem.
 - Most heavy computations are performed by optimized C/C++/CUDA libraries.
 
----
-
-# Scikit-Learn
+## Scikit-Learn
 
 - A Python library for traditional machine learning.
 - Provides algorithms for:
@@ -112,9 +98,7 @@ Loss → Tells the model how wrong it is
   - Data Preprocessing
   - Model Selection
 
----
-
-# PyTorch
+## PyTorch
 
 - A deep learning framework.
 - Provides:
@@ -123,9 +107,7 @@ Loss → Tells the model how wrong it is
   - Neural network modules
   - GPU acceleration
 
----
-
-# Machine Learning Pipeline
+## Machine Learning Pipeline
 
 ```text
 Raw Data
@@ -148,17 +130,13 @@ Prediction
 - Encode categorical features.
 - Create useful features (Feature Engineering).
 
----
-
-# Why Not Train on the Test Set?
+### Why Not Train on the Test Set?
 
 - The test set represents unseen data.
 - Using it for training or model tuning causes **Data Leakage**.
 - The test accuracy becomes overly optimistic and no longer reflects real-world performance.
 
----
-
-# Validation vs. Test Set
+### Validation vs. Test Set
 
 **Validation Set**
 - Used for model selection.
@@ -168,9 +146,7 @@ Prediction
 - Used only for the final evaluation.
 - Must remain completely unseen during model development.
 
----
-
-# Problems with Raw Data
+### Problems with Raw Data
 
 Without preprocessing, the model may face:
 
