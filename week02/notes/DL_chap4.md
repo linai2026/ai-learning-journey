@@ -109,8 +109,6 @@ The matrix is still invertible, but numerical computations become unstable.
 
 > Poor conditioning means that small input errors are greatly amplified.
 
----
-
 ### Why Do Errors Keep Growing?
 
 **Answer:**
@@ -124,8 +122,6 @@ The amplified output error becomes the input of the next computation, causing er
 **Key Idea:**
 
 > Numerical errors are not only propagated—they are amplified.
-
----
 
 ### Why Is This Important for Neural Networks?
 
