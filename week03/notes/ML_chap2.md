@@ -187,3 +187,79 @@ $$
 \rightarrow
 \text{update } w,b
 $$
+
+
+# Perceptron Training
+
+## 1. What does `fit()` do?
+
+`fit()` trains the Perceptron by repeatedly going through the training data.
+
+For each training example:
+
+1. Make a prediction.
+2. Compare it with the true label.
+3. Update the weights and bias if the prediction is wrong.
+
+The main trainable parameters are:
+
+- **Weights (`w`)**
+- **Bias (`b`)**
+
+---
+
+## 2. What does `predict()` do?
+
+`predict()` first calculates the net input:
+
+`z = w^T x + b`
+
+Then it applies a threshold to convert the net input into a class label.
+
+Flow:
+
+`input → net input → threshold → predicted class`
+
+---
+
+## 3. What are weights?
+
+Each feature has a corresponding weight.
+
+A weight controls the **strength and direction** of that feature's influence on the prediction.
+
+- Large positive weight → stronger positive influence
+- Large negative weight → stronger negative influence
+- Weight near zero → weaker influence
+
+---
+
+## 4. What happens after a wrong prediction?
+
+The Perceptron calculates:
+
+`update = learning_rate × (target - prediction)`
+
+Then it updates:
+
+`w = w + update × x`
+
+`b = b + update`
+
+A wrong prediction also increases the error count for that epoch.
+
+If the prediction is correct, `update = 0`, so the parameters are not changed.
+
+---
+
+## 5. Why do we need multiple epochs?
+
+One pass through the training set may not be enough to find suitable weights and bias.
+
+An **epoch** means one complete pass through the training set.
+
+Updating the parameters for one example can also affect predictions for other examples, so the model may need multiple epochs.
+
+**Important:** More epochs do not always guarantee fewer errors.
+
+If the data is linearly separable, the Perceptron can eventually converge to zero classification errors. If the data is not linearly separable, it may never reach zero errors.
