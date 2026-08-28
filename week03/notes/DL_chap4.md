@@ -139,3 +139,117 @@ The main relationship is:
 > **Gradient:** How is the loss changing?  
 > **Hessian:** How is the gradient changing?  
 > **Curvature:** How does the shape of the loss surface affect optimization?
+
+
+# Constrained Optimization
+
+## 1. Basic Idea
+
+**Unconstrained optimization** searches for the best solution over all possible values:
+
+`min f(x)`
+
+**Constrained optimization** searches only within a feasible set `S`:
+
+`min f(x), where x ∈ S`
+
+- **Feasible set / region**: the set of allowed solutions.
+- **Feasible point**: a point inside the feasible set.
+- The unconstrained optimum may not be feasible, so the constrained optimum can be different.
+
+---
+
+## 2. Projected Gradient Descent
+
+A normal gradient descent step may move `x` outside the feasible region.
+
+One solution is:
+
+1. Take a normal gradient descent step.
+2. If the new point is outside `S`, project it back to the nearest feasible point.
+
+**Point projection:**
+
+> Move first, then pull the point back into the feasible region.
+
+Another approach is to project the **gradient** onto the tangent space before moving.
+
+**Gradient projection:**
+
+> Remove the part of the gradient that points in an infeasible direction, then move.
+
+---
+
+## 3. Equality vs. Inequality Constraints
+
+### Equality Constraint
+
+`g(x) = 0`
+
+Geometrically, it usually reduces the dimension of the feasible set.
+
+### Inequality Constraint
+
+`h(x) ≤ 0`
+
+Geometrically, it acts like a **wall** that separates feasible and infeasible regions.
+
+---
+
+## 4. Lagrangian and KKT Multipliers
+
+The generalized Lagrangian combines the objective and constraints:
+
+`L(x, λ, α) = f(x) + Σ λᵢgᵢ(x) + Σ αⱼhⱼ(x)`
+
+Main idea:
+
+> Convert a constrained optimization problem into an optimization problem where the effects of the constraints are encoded in the Lagrangian.
+
+- `λ`: multipliers for equality constraints
+- `α`: multipliers for inequality constraints
+
+---
+
+## 5. Active and Inactive Constraints
+
+For an inequality constraint:
+
+`h(x) ≤ 0`
+
+At the solution `x*`:
+
+- `h(x*) = 0` → **active constraint**
+  - The solution touches the boundary ("hits the wall").
+
+- `h(x*) < 0` → **inactive constraint**
+  - The solution does not touch the boundary.
+
+---
+
+## 6. Complementary Slackness
+
+For each inequality constraint:
+
+`αⱼ hⱼ(x) = 0`
+
+This means:
+
+- If the constraint is **active**, `hⱼ(x) = 0`.
+- If the constraint is **inactive**, its multiplier `αⱼ = 0`.
+
+Intuition:
+
+> Either the solution hits the wall, or the wall has no influence on the solution.
+
+---
+
+## 7. Key Intuition
+
+Gradient descent gives the best local direction for decreasing the objective **without considering constraints**.
+
+With constraints, that direction may be infeasible.
+
+Therefore, constrained optimization searches for:
+
+> The best solution among all feasible solutions.

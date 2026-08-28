@@ -263,3 +263,196 @@ Updating the parameters for one example can also affect predictions for other ex
 **Important:** More epochs do not always guarantee fewer errors.
 
 If the data is linearly separable, the Perceptron can eventually converge to zero classification errors. If the data is not linearly separable, it may never reach zero errors.
+
+
+
+# Perceptron on the Iris Dataset
+
+## 1. Features vs. Classes
+
+- **Features** are the input variables used for prediction.
+- **Classes** are the possible output categories.
+
+In the Iris dataset:
+
+- Features:
+  - Sepal length
+  - Sepal width
+  - Petal length
+  - Petal width
+- Classes:
+  - Setosa
+  - Versicolor
+  - Virginica
+
+The book uses only:
+
+- **2 features** (sepal length and petal length) for easy 2D visualization.
+- **2 classes** (Setosa and Versicolor) because the basic perceptron is a binary classifier.
+
+> A perceptron is **not limited to two features**.
+
+---
+
+## 2. Preparing the Data
+
+### Target Labels (`y`)
+
+```python
+y = df.iloc[0:100, 4].values
+y = np.where(y == 'Iris-setosa', 0, 1)
+```
+
+This extracts the class labels and converts them into numbers:
+
+- Setosa -> `0`
+- Versicolor -> `1`
+
+Shape:
+
+```text
+y.shape = (100,)
+```
+
+So `y` contains the correct class label for each sample.
+
+### Input Features (`X`)
+
+```python
+X = df.iloc[0:100, [0, 2]].values
+```
+
+This extracts:
+
+- 100 samples
+- 2 features: sepal length and petal length
+
+Shape:
+
+```text
+X.shape = (100, 2)
+```
+
+General machine learning convention:
+
+```text
+X.shape = (n_samples, n_features)
+y.shape = (n_samples,)
+```
+
+---
+
+## 3. Training the Perceptron
+
+```python
+ppn = Perceptron(eta=0.1, n_iter=10)
+ppn.fit(X, y)
+```
+
+During training:
+
+```text
+Correct prediction -> no parameter update
+Wrong prediction   -> update weights and bias
+```
+
+If an entire epoch has **zero updates**, all training samples are classified correctly.
+
+Therefore, the perceptron has **converged**.
+
+---
+
+## 4. Linear Separability
+
+A basic perceptron can converge if the two classes are **linearly separable**.
+
+```text
+Linearly separable
+        |
+        v
+A linear decision boundary exists
+        |
+        v
+Perceptron can converge
+```
+
+If the classes are **not linearly separable**:
+
+```text
+Some samples remain misclassified
+        |
+        v
+Weights and bias continue to update
+        |
+        v
+The perceptron does not converge
+```
+
+This is why we usually set a maximum number of epochs.
+
+---
+
+## 5. Decision Boundary
+
+For an input `x`, the perceptron calculates:
+
+```text
+z = w^T x + b
+```
+
+Then it applies a threshold:
+
+```text
+z > 0  -> Class 1
+z <= 0 -> Class 0
+```
+
+The **decision boundary** is where:
+
+```text
+w^T x + b = 0
+```
+
+It separates the feature space into two classification regions.
+
+Depending on the number of features:
+
+```text
+2 features -> line
+3 features -> plane
+n features -> hyperplane
+```
+
+---
+
+## 6. Prediction Workflow
+
+For a new sample:
+
+```text
+Input features x
+        |
+        v
+Compute z = w^T x + b
+        |
+        v
+Apply threshold
+        |
+        v
+Predict Class 0 or Class 1
+```
+
+---
+
+## Key Takeaways
+
+- `X` contains the **input features**.
+- `y` contains the **correct class labels**.
+- `X.shape = (n_samples, n_features)`.
+- A basic perceptron is a **binary classifier**.
+- A perceptron can use more than two features.
+- Two features are used here mainly for **2D visualization**.
+- The perceptron updates its parameters when it makes a mistake.
+- Zero updates in an epoch means the model has converged on the training data.
+- Perceptron convergence requires **linear separability**.
+- The decision boundary is defined by `w^T x + b = 0`.
