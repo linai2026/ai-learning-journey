@@ -11,8 +11,6 @@ Key distinction:
 - $y$ = true label
 - $\hat{y}$ = model prediction
 
----
-
 ## 2. What Does a Perceptron Learn?
 
 A perceptron learns its **parameters**:
@@ -21,8 +19,6 @@ A perceptron learns its **parameters**:
 - bias (`b`)
 
 Training means adjusting these parameters based on prediction errors.
-
----
 
 ## 3. Net Input
 
@@ -49,8 +45,6 @@ $$
 
 The model first calculates $z$, then uses a decision function to produce the prediction $\hat{y}$.
 
----
-
 ## 4. Weights
 
 Each feature has a corresponding weight:
@@ -67,8 +61,6 @@ A weight represents both:
 - **direction** of the feature's influence
 
 A positive weight tends to increase $z$, while a negative weight tends to decrease $z$.
-
----
 
 ## 5. Decision Function
 
@@ -93,8 +85,6 @@ x
 \rightarrow \text{decision function}
 \rightarrow \hat{y}
 $$
-
----
 
 ## 6. How Does a Perceptron Learn?
 
@@ -129,8 +119,6 @@ $$
 
 Instead, the model adjusts its parameters so that incorrectly classified samples are more likely to fall on the correct side of the decision boundary.
 
----
-
 ## 7. Training vs. Prediction
 
 ### Training
@@ -160,36 +148,8 @@ During prediction, the learned parameters are used **without updating them**.
 
 ---
 
-## Key Mental Model
 
-### Forward Prediction
-
-$$
-\text{features } x
-\rightarrow
-\text{parameters } (w,b)
-\rightarrow
-\text{net input } z
-\rightarrow
-\text{decision function}
-\rightarrow
-\text{prediction } \hat{y}
-$$
-
-### Learning
-
-$$
-\hat{y}
-\rightarrow
-\text{compare with } y
-\rightarrow
-\text{error}
-\rightarrow
-\text{update } w,b
-$$
-
-
-# Perceptron Training
+# Chapter 2 — Perceptron Training
 
 ## 1. What does `fit()` do?
 
