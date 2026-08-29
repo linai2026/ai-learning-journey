@@ -456,3 +456,228 @@ Predict Class 0 or Class 1
 - Zero updates in an epoch means the model has converged on the training data.
 - Perceptron convergence requires **linear separability**.
 - The decision boundary is defined by `w^T x + b = 0`.
+
+# Adaline and Gradient Descent
+
+## 1. Perceptron vs. Adaline
+
+### Perceptron
+
+The Perceptron uses the predicted class label to update its parameters.
+
+```text
+Input
+  ↓
+Net Input: z = w^T x + b
+  ↓
+Threshold Function
+  ↓
+Class Label
+  ↓
+Parameter Update
+```
+
+### Adaline
+
+Adaline uses the continuous activation value to calculate the loss.
+
+```text
+Input
+  ↓
+Net Input: z = w^T x + b
+  ↓
+Linear Activation
+  ↓
+MSE Loss
+  ↓
+Gradient Descent
+  ↓
+Parameter Update
+```
+
+The activation function in Adaline is the identity function:
+
+```text
+σ(z) = z
+```
+
+The threshold function is only used to obtain the final class prediction.
+
+### Key Difference
+
+- **Perceptron:** updates parameters based on predicted class labels.
+- **Adaline:** updates parameters based on continuous activation values.
+- This allows Adaline to use a differentiable loss function and Gradient Descent.
+
+---
+
+## 2. Gradient Descent
+
+Gradient Descent minimizes a loss function by updating the model parameters:
+
+- weights `w`
+- bias `b`
+
+General update rule:
+
+```text
+w = w - η * gradient
+```
+
+where:
+
+- `η` = learning rate
+- `gradient` = direction of the steepest increase in loss
+- `-gradient` = direction of the steepest decrease in loss
+
+For Adaline, the loss function is **Mean Squared Error (MSE)**.
+
+The goal is:
+
+```text
+Update w and b
+     ↓
+Reduce MSE
+     ↓
+Approach a minimum of the loss function
+```
+
+---
+
+## 3. Learning Rate
+
+The learning rate `η` controls the size of each parameter update.
+
+### Learning Rate Too Large
+
+- Updates are too large.
+- The optimizer may overshoot the minimum.
+- Loss may oscillate or diverge.
+
+### Learning Rate Too Small
+
+- Updates are very small.
+- Training can converge very slowly.
+- More epochs are required.
+
+---
+
+## 4. Epoch
+
+One epoch means:
+
+> **One complete pass through the entire training dataset.**
+
+An epoch does **not** necessarily mean one parameter update.
+
+### Batch Gradient Descent
+
+Uses the entire training dataset to calculate the gradient.
+
+```text
+All Training Samples
+        ↓
+Calculate Gradient
+        ↓
+Update Parameters Once
+```
+
+Therefore:
+
+```text
+1 epoch = 1 parameter update
+```
+
+### Stochastic Gradient Descent (SGD)
+
+Updates the parameters after each training sample.
+
+```text
+Sample 1 → Update
+Sample 2 → Update
+Sample 3 → Update
+...
+```
+
+Therefore, if there are 100 samples:
+
+```text
+1 epoch = 100 parameter updates
+```
+
+---
+
+## 5. Vectorized Weight Update in Adaline
+
+Adaline uses the entire training set in Batch Gradient Descent.
+
+```python
+errors = y - output
+self.w_ += self.eta * 2.0 * X.T.dot(errors) / X.shape[0]
+```
+
+`errors` contains the prediction error for every training sample.
+
+`X.T.dot(errors)` performs matrix-vector multiplication and calculates the update information for all weights at once.
+
+Example shapes:
+
+```text
+X.shape       = (100, 2)
+X.T.shape     = (2, 100)
+errors.shape  = (100,)
+
+X.T.dot(errors)
+        ↓
+shape = (2,)
+        ↓
+one value for each weight
+```
+
+This is an example of **vectorization**.
+
+---
+
+## 6. NumPy `dot()`
+
+The behavior of `dot()` depends on the dimensions of its inputs.
+
+| Input | Operation | Output |
+|---|---|---|
+| vector · vector | Dot product | Scalar |
+| matrix · vector | Matrix-vector multiplication | Vector |
+| matrix · matrix | Matrix multiplication | Matrix |
+
+For example:
+
+```python
+X.T.dot(errors)
+```
+
+is **matrix-vector multiplication**.
+
+In this case:
+
+```text
+(2, 100) dot (100,)
+        ↓
+       (2,)
+```
+
+The two output values correspond to the two weights.
+
+---
+
+## Key Takeaways
+
+- Adaline uses continuous activation values to calculate MSE.
+- Adaline's activation function is `σ(z) = z`.
+- The threshold function is used for the final class prediction.
+- Gradient Descent updates `w` and `b` to reduce the loss.
+- A large learning rate may cause overshooting or divergence.
+- A small learning rate causes slow convergence.
+- One epoch means one complete pass through the training dataset.
+- The number of parameter updates per epoch depends on the Gradient Descent method.
+- Batch Gradient Descent updates once per epoch.
+- SGD updates once per training sample.
+- `X.T.dot(errors)` calculates weight-update information using vectorization.
