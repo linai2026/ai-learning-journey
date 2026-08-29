@@ -148,7 +148,6 @@ During prediction, the learned parameters are used **without updating them**.
 
 ---
 
-
 # Chapter 2 — Perceptron Training
 
 ## 1. What does `fit()` do?
@@ -166,8 +165,6 @@ The main trainable parameters are:
 - **Weights (`w`)**
 - **Bias (`b`)**
 
----
-
 ## 2. What does `predict()` do?
 
 `predict()` first calculates the net input:
@@ -180,8 +177,6 @@ Flow:
 
 `input → net input → threshold → predicted class`
 
----
-
 ## 3. What are weights?
 
 Each feature has a corresponding weight.
@@ -191,8 +186,6 @@ A weight controls the **strength and direction** of that feature's influence on 
 - Large positive weight → stronger positive influence
 - Large negative weight → stronger negative influence
 - Weight near zero → weaker influence
-
----
 
 ## 4. What happens after a wrong prediction?
 
@@ -210,8 +203,6 @@ A wrong prediction also increases the error count for that epoch.
 
 If the prediction is correct, `update = 0`, so the parameters are not changed.
 
----
-
 ## 5. Why do we need multiple epochs?
 
 One pass through the training set may not be enough to find suitable weights and bias.
@@ -224,9 +215,9 @@ Updating the parameters for one example can also affect predictions for other ex
 
 If the data is linearly separable, the Perceptron can eventually converge to zero classification errors. If the data is not linearly separable, it may never reach zero errors.
 
+---
 
-
-# Perceptron on the Iris Dataset
+# Chapter 2 — Perceptron on the Iris Dataset
 
 ## 1. Features vs. Classes
 
