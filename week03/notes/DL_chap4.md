@@ -1,4 +1,4 @@
-# Gradient, Hessian, and Curvature
+# Deep Learning Book Chapter 4 - Gradient, Hessian, and Curvature
 
 ## 1. Gradient
 
@@ -32,8 +32,6 @@ $$
 -\nabla L
 $$
 
----
-
 ## 2. Why Is the Gradient a Vector?
 
 For a function with many parameters, each parameter has its own partial derivative.
@@ -60,8 +58,6 @@ So:
 > One parameter -> one derivative  
 > Many parameters -> many derivatives -> gradient vector
 
----
-
 ## 3. Second Derivative and Hessian
 
 The first derivative describes the **rate of change**.
@@ -85,8 +81,6 @@ Therefore:
 > Gradient -> slope  
 > Hessian -> curvature
 
----
-
 ## 4. Why Does Curvature Matter in Optimization?
 
 Curvature tells us how quickly the gradient changes.
@@ -104,8 +98,6 @@ Different curvatures in different directions can also cause Gradient Descent to 
 Therefore:
 
 > High curvature often requires a smaller learning rate.
-
----
 
 ## 5. Why Does Gradient = 0 Not Mean Global Minimum?
 

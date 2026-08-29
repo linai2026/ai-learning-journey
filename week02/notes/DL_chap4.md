@@ -1,4 +1,4 @@
-# Numerical Computation Notes (Deep Learning Book - Chapter 4)
+# Deep Learning Book - Chapter 4 Numerical Computation
 
 ## Overflow
 
