@@ -99,41 +99,9 @@ Therefore:
 
 > High curvature often requires a smaller learning rate.
 
-## 5. Why Does Gradient = 0 Not Mean Global Minimum?
-
-If:
-
-$$
-\nabla L = 0
-$$
-
-we only know that the point is a **critical point**.
-
-It could be:
-
-- a local minimum
-- a local maximum
-- a saddle point
-- another flat/degenerate point
-
-Second-order information from the Hessian can help determine the local curvature around the critical point.
-
-However:
-
-> A local minimum is not necessarily a global minimum.
-
 ---
 
-## Key Idea
-
-The main relationship is:
-
-> **Gradient:** How is the loss changing?  
-> **Hessian:** How is the gradient changing?  
-> **Curvature:** How does the shape of the loss surface affect optimization?
-
-
-# Constrained Optimization
+# Deep Learning Book Chapter 4 - Constrained Optimization
 
 ## 1. Basic Idea
 
