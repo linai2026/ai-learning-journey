@@ -117,8 +117,6 @@ Therefore:
 - **Feasible point**: a point inside the feasible set.
 - The unconstrained optimum may not be feasible, so the constrained optimum can be different.
 
----
-
 ## 2. Projected Gradient Descent
 
 A normal gradient descent step may move `x` outside the feasible region.
@@ -138,8 +136,6 @@ Another approach is to project the **gradient** onto the tangent space before mo
 
 > Remove the part of the gradient that points in an infeasible direction, then move.
 
----
-
 ## 3. Equality vs. Inequality Constraints
 
 ### Equality Constraint
@@ -154,8 +150,6 @@ Geometrically, it usually reduces the dimension of the feasible set.
 
 Geometrically, it acts like a **wall** that separates feasible and infeasible regions.
 
----
-
 ## 4. Lagrangian and KKT Multipliers
 
 The generalized Lagrangian combines the objective and constraints:
@@ -168,8 +162,6 @@ Main idea:
 
 - `λ`: multipliers for equality constraints
 - `α`: multipliers for inequality constraints
-
----
 
 ## 5. Active and Inactive Constraints
 
@@ -185,8 +177,6 @@ At the solution `x*`:
 - `h(x*) < 0` → **inactive constraint**
   - The solution does not touch the boundary.
 
----
-
 ## 6. Complementary Slackness
 
 For each inequality constraint:
@@ -201,15 +191,3 @@ This means:
 Intuition:
 
 > Either the solution hits the wall, or the wall has no influence on the solution.
-
----
-
-## 7. Key Intuition
-
-Gradient descent gives the best local direction for decreasing the objective **without considering constraints**.
-
-With constraints, that direction may be infeasible.
-
-Therefore, constrained optimization searches for:
-
-> The best solution among all feasible solutions.

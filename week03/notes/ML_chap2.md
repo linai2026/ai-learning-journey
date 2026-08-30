@@ -243,8 +243,6 @@ The book uses only:
 
 > A perceptron is **not limited to two features**.
 
----
-
 ## 2. Preparing the Data
 
 ### Target Labels (`y`)
@@ -291,8 +289,6 @@ X.shape = (n_samples, n_features)
 y.shape = (n_samples,)
 ```
 
----
-
 ## 3. Training the Perceptron
 
 ```python
@@ -310,8 +306,6 @@ Wrong prediction   -> update weights and bias
 If an entire epoch has **zero updates**, all training samples are classified correctly.
 
 Therefore, the perceptron has **converged**.
-
----
 
 ## 4. Linear Separability
 
@@ -340,8 +334,6 @@ The perceptron does not converge
 ```
 
 This is why we usually set a maximum number of epochs.
-
----
 
 ## 5. Decision Boundary
 
@@ -374,8 +366,6 @@ Depending on the number of features:
 n features -> hyperplane
 ```
 
----
-
 ## 6. Prediction Workflow
 
 For a new sample:
@@ -393,8 +383,6 @@ Apply threshold
 Predict Class 0 or Class 1
 ```
 
----
-
 ## Key Takeaways
 
 - `X` contains the **input features**.
@@ -408,7 +396,9 @@ Predict Class 0 or Class 1
 - Perceptron convergence requires **linear separability**.
 - The decision boundary is defined by `w^T x + b = 0`.
 
-# Adaline and Gradient Descent
+---
+
+# Chapter 2 — Adaline and Gradient Descent
 
 ## 1. Perceptron vs. Adaline
 
