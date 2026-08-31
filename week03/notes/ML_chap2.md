@@ -450,8 +450,6 @@ The threshold function is only used to obtain the final class prediction.
 - **Adaline:** updates parameters based on continuous activation values.
 - This allows Adaline to use a differentiable loss function and Gradient Descent.
 
----
-
 ## 2. Gradient Descent
 
 Gradient Descent minimizes a loss function by updating the model parameters:
@@ -483,8 +481,6 @@ Reduce MSE
 Approach a minimum of the loss function
 ```
 
----
-
 ## 3. Learning Rate
 
 The learning rate `η` controls the size of each parameter update.
@@ -500,8 +496,6 @@ The learning rate `η` controls the size of each parameter update.
 - Updates are very small.
 - Training can converge very slowly.
 - More epochs are required.
-
----
 
 ## 4. Epoch
 
@@ -546,8 +540,6 @@ Therefore, if there are 100 samples:
 1 epoch = 100 parameter updates
 ```
 
----
-
 ## 5. Vectorized Weight Update in Adaline
 
 Adaline uses the entire training set in Batch Gradient Descent.
@@ -577,8 +569,6 @@ one value for each weight
 
 This is an example of **vectorization**.
 
----
-
 ## 6. NumPy `dot()`
 
 The behavior of `dot()` depends on the dimensions of its inputs.
@@ -606,8 +596,6 @@ In this case:
 ```
 
 The two output values correspond to the two weights.
-
----
 
 ## Key Takeaways
 
