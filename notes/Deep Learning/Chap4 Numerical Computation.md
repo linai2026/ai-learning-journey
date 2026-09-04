@@ -139,22 +139,22 @@ As computations continue, these errors accumulate and may reduce numerical stabi
 
 ---
 
-## 4.3 Gradient-Based Optimization
+# 4.3 Gradient-Based Optimization
 
-### Why do we need the gradient?
+## Why do we need the gradient?
 
 - A gradient is a vector of partial derivatives of the loss function.
 - It tells us the direction in which the loss increases the fastest.
 - By moving in the opposite direction (the negative gradient), we can reduce the loss efficiently.
 - This is much more effective than trying random directions.
 
-### Why not search randomly?
+## Why not search randomly?
 
 - Random search ignores information about the shape of the loss function.
 - The gradient uses local information to find the steepest descent direction.
 - In deep learning, models often have millions of parameters, making random search extremely inefficient.
 
-### Why does the loss become smaller?
+## Why does the loss become smaller?
 
 - Parameters are updated in the direction of the negative gradient.
 - Each update usually reduces the loss.
@@ -162,23 +162,23 @@ As computations continue, these errors accumulate and may reduce numerical stabi
 
 ---
 
-### Local Minimum
+## Local Minimum
 
 A point where the loss is lower than every nearby point.
 
-### Global Minimum
+## Global Minimum
 
 A point where the loss is the lowest over the entire parameter space.
 
-### Saddle Point
+## Saddle Point
 
 A critical point where the gradient is zero, but the point is neither a local minimum nor a local maximum.
 
-### Critical Point
+## Critical Point
 
 A point where the gradient is zero.
 
-### Why Are Saddle Points a Bigger Problem?
+## Why Are Saddle Points a Bigger Problem?
 
 Deep neural networks usually have millions of parameters.
 
