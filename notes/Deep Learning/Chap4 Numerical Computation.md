@@ -296,6 +296,146 @@ Therefore:
 
 ---
 
+## 1. First-Order vs. Second-Order Optimization
+
+### First-Order Optimization
+
+First-order methods use only the **gradient**:
+
+$$
+\nabla f(x)
+$$
+
+Example: **Gradient Descent**
+
+$$
+x_{\text{new}} = x - \eta \nabla f(x)
+$$
+
+- Gradient tells us the direction and rate of change.
+- It does not directly use curvature information.
+
+### Second-Order Optimization
+
+Second-order methods also use the **Hessian matrix**:
+
+$$
+H(x)
+$$
+
+Example: **Newton's Method**
+
+$$
+x_{\text{new}} = x - H(x)^{-1}\nabla f(x)
+$$
+
+- Gradient describes the slope.
+- Hessian describes the curvature in different directions.
+
+## 2. Newton's Method
+
+Newton's method locally approximates a function using a **second-order Taylor expansion**.
+
+It then finds the critical point of this quadratic approximation.
+
+The resulting update rule is:
+
+$$
+x_{\text{new}} = x - H(x)^{-1}\nabla f(x)
+$$
+
+### Quadratic Functions
+
+For a quadratic function:
+
+$$
+f(x) = \frac{1}{2}x^T A x + b^T x + c
+$$
+
+the second-order Taylor approximation is exactly the original function.
+
+Therefore, if the quadratic function is **positive definite**, Newton's method can reach the minimum in **one step**.
+
+## 3. Newton's Method and Saddle Points
+
+Newton's method searches for a nearby **critical point**:
+
+$$
+\nabla f(x) = 0
+$$
+
+However, a critical point is not necessarily a minimum. It can also be:
+
+- a local maximum
+- a saddle point
+
+If the Hessian has both positive and negative eigenvalues, the critical point is a saddle point.
+
+Therefore:
+
+> Newton's method can be attracted to critical points that are not minima.
+
+When the Hessian is positive definite:
+
+$$
+\lambda_i(H) > 0
+$$
+
+the nearby critical point is a local minimum.
+
+## 4. Lipschitz Continuity
+
+A function is Lipschitz continuous if:
+
+$$
+|f(x) - f(y)| \leq L\|x-y\|
+$$
+
+where $L$ is the **Lipschitz constant**.
+
+Intuition:
+
+> The change in output is bounded by a constant times the change in input.
+
+In other words, the function cannot change arbitrarily fast.
+
+Lipschitz continuity is useful for analyzing and proving the behavior of optimization algorithms.
+
+## 5. Convex Optimization
+
+For a convex function, the Hessian is positive semidefinite everywhere:
+
+$$
+H(x) \succeq 0
+$$
+
+Important properties:
+
+- There are no saddle points.
+- Every local minimum is also a global minimum.
+
+$$
+\boxed{\text{Local Minimum} = \text{Global Minimum}}
+$$
+
+This makes convex functions much easier to optimize.
+
+However, most deep learning optimization problems are **non-convex**, so these guarantees generally do not apply.
+
+## Key Takeaways
+
+- **Gradient Descent** is a first-order method because it uses the gradient.
+- **Newton's Method** is a second-order method because it uses both the gradient and Hessian.
+- The **Hessian** describes curvature in different directions.
+- Newton's method minimizes a local quadratic approximation.
+- For positive definite quadratic functions, Newton's method can reach the minimum in one step.
+- Newton's method may converge to saddle points because it searches for critical points, not necessarily minima.
+- **Lipschitz continuity** means the rate of change is bounded.
+- For **convex functions**, every local minimum is a global minimum.
+- Most deep learning problems are non-convex.
+
+---
+
 # 4.4 Constrained Optimization
 
 ## 1. Basic Idea
