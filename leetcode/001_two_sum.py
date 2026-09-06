@@ -14,10 +14,18 @@ print(Solution().twoSum([3,3], 6))
 # Hash Map O(n) solution
 class Solution_Hash:
     def twoSum(self, nums: list[int], target: int) -> list[int]:
-        seen = {} # Dictionary to store seennumbers and their indices
+
+        # Dictionary to store seen numbers and their indices
+        seen = {} 
+        
         for i, num in enumerate(nums):
+            # Calculate the complement of the current number
             complement = target - num
+
+            # Check if the complement exists in the seen dictionary
             if complement in seen:
+                # If the complement is found, return the indices of the two numbers
                 return (seen[complement], i)
+            # Store the current number and its index in the seen dictionary
             seen[num] = i
         return None
