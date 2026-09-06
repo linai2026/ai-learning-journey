@@ -1,6 +1,8 @@
 # Chapter 2 — Perceptron: Core Concepts
 
-## 1. Features, Labels, and Predictions
+## Perceptron
+
+### 1. Features, Labels, and Predictions
 
 - **Feature (`x`)**: an input variable used by the model to make a prediction.
 - **Label (`y`)**: the true target associated with a training sample.
@@ -11,7 +13,7 @@ Key distinction:
 - $y$ = true label
 - $\hat{y}$ = model prediction
 
-## 2. What Does a Perceptron Learn?
+### 2. What Does a Perceptron Learn?
 
 A perceptron learns its **parameters**:
 
@@ -20,7 +22,7 @@ A perceptron learns its **parameters**:
 
 Training means adjusting these parameters based on prediction errors.
 
-## 3. Net Input
+### 3. Net Input
 
 The perceptron calculates:
 
@@ -35,7 +37,7 @@ where:
 - $b$ = bias
 - $z$ = net input
 
-### ⚠️ Important: $z$ is NOT the final prediction.
+#### ⚠️ Important: $z$ is NOT the final prediction.
 
 The correct flow is:
 
@@ -45,7 +47,7 @@ $$
 
 The model first calculates $z$, then uses a decision function to produce the prediction $\hat{y}$.
 
-## 4. Weights
+### 4. Weights
 
 Each feature has a corresponding weight:
 
@@ -62,7 +64,7 @@ A weight represents both:
 
 A positive weight tends to increase $z$, while a negative weight tends to decrease $z$.
 
-## 5. Decision Function
+### 5. Decision Function
 
 For binary classification, a decision function converts $z$ into a class prediction.
 
@@ -86,7 +88,7 @@ x
 \rightarrow \hat{y}
 $$
 
-## 6. How Does a Perceptron Learn?
+### 6. How Does a Perceptron Learn?
 
 During training:
 
@@ -119,7 +121,7 @@ $$
 
 Instead, the model adjusts its parameters so that incorrectly classified samples are more likely to fall on the correct side of the decision boundary.
 
-## 7. Training vs. Prediction
+### 7. Training vs. Prediction
 
 ### Training
 
