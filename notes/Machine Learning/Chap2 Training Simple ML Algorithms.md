@@ -1,8 +1,6 @@
-# Chapter 2 — Training Simple ML Algorithms for Classification
+# Perceptron: Core Concepts
 
-## Perceptron: Core Concepts
-
-### 1. Features, Labels, and Predictions
+## 1. Features, Labels, and Predictions
 
 - **Feature (`x`)**: an input variable used by the model to make a prediction.
 - **Label (`y`)**: the true target associated with a training sample.
@@ -13,7 +11,7 @@ Key distinction:
 - $y$ = true label
 - $\hat{y}$ = model prediction
 
-### 2. What Does a Perceptron Learn?
+## 2. What Does a Perceptron Learn?
 
 A perceptron learns its **parameters**:
 
@@ -22,7 +20,7 @@ A perceptron learns its **parameters**:
 
 Training means adjusting these parameters based on prediction errors.
 
-### 3. Net Input
+## 3. Net Input
 
 The perceptron calculates:
 
@@ -37,7 +35,7 @@ where:
 - $b$ = bias
 - $z$ = net input
 
-#### ⚠️ Important: $z$ is NOT the final prediction.
+### ⚠️ Important: $z$ is NOT the final prediction.
 
 The correct flow is:
 
@@ -47,7 +45,7 @@ $$
 
 The model first calculates $z$, then uses a decision function to produce the prediction $\hat{y}$.
 
-### 4. Weights
+## 4. Weights
 
 Each feature has a corresponding weight:
 
@@ -55,7 +53,7 @@ $$
 z = w_1x_1 + w_2x_2 + \cdots + w_nx_n + b
 $$
 
-#### ⚠️ Important: A weight is not simply "feature importance."
+### ⚠️ Important: A weight is not simply "feature importance."
 
 A weight represents both:
 
@@ -64,7 +62,7 @@ A weight represents both:
 
 A positive weight tends to increase $z$, while a negative weight tends to decrease $z$.
 
-### 5. Decision Function
+## 5. Decision Function
 
 For binary classification, a decision function converts $z$ into a class prediction.
 
@@ -88,7 +86,7 @@ x
 \rightarrow \hat{y}
 $$
 
-### 6. How Does a Perceptron Learn?
+## 6. How Does a Perceptron Learn?
 
 During training:
 
@@ -111,7 +109,7 @@ $$
 
 where $\eta$ is the **learning rate**.
 
-#### ⚠️ Important: The goal is NOT to make $\hat{y}$ gradually "closer" to the label.
+### ⚠️ Important: The goal is NOT to make $\hat{y}$ gradually "closer" to the label.
 
 For a perceptron, the prediction is discrete:
 
@@ -121,9 +119,9 @@ $$
 
 Instead, the model adjusts its parameters so that incorrectly classified samples are more likely to fall on the correct side of the decision boundary.
 
-### 7. Training vs. Prediction
+## 7. Training vs. Prediction
 
-#### Training
+### Training
 
 $$
 x
@@ -134,7 +132,7 @@ x
 \rightarrow \text{update } w,b
 $$
 
-#### Prediction
+### Prediction
 
 For unseen data:
 
@@ -150,9 +148,9 @@ During prediction, the learned parameters are used **without updating them**.
 
 ---
 
-## Perceptron Training
+# Perceptron Training
 
-### 1. What does `fit()` do?
+## 1. What does `fit()` do?
 
 `fit()` trains the Perceptron by repeatedly going through the training data.
 
@@ -167,7 +165,7 @@ The main trainable parameters are:
 - **Weights (`w`)**
 - **Bias (`b`)**
 
-### 2. What does `predict()` do?
+## 2. What does `predict()` do?
 
 `predict()` first calculates the net input:
 
@@ -179,7 +177,7 @@ Flow:
 
 `input → net input → threshold → predicted class`
 
-### 3. What are weights?
+## 3. What are weights?
 
 Each feature has a corresponding weight.
 
@@ -189,7 +187,7 @@ A weight controls the **strength and direction** of that feature's influence on 
 - Large negative weight → stronger negative influence
 - Weight near zero → weaker influence
 
-### 4. What happens after a wrong prediction?
+## 4. What happens after a wrong prediction?
 
 The Perceptron calculates:
 
@@ -205,7 +203,7 @@ A wrong prediction also increases the error count for that epoch.
 
 If the prediction is correct, `update = 0`, so the parameters are not changed.
 
-### 5. Why do we need multiple epochs?
+## 5. Why do we need multiple epochs?
 
 One pass through the training set may not be enough to find suitable weights and bias.
 
@@ -219,9 +217,9 @@ If the data is linearly separable, the Perceptron can eventually converge to zer
 
 ---
 
-## Perceptron on the Iris Dataset
+# Perceptron on the Iris Dataset
 
-### 1. Features vs. Classes
+## 1. Features vs. Classes
 
 - **Features** are the input variables used for prediction.
 - **Classes** are the possible output categories.
@@ -245,9 +243,9 @@ The book uses only:
 
 > A perceptron is **not limited to two features**.
 
-### 2. Preparing the Data
+## 2. Preparing the Data
 
-#### Target Labels (`y`)
+### Target Labels (`y`)
 
 ```python
 y = df.iloc[0:100, 4].values
@@ -267,7 +265,7 @@ y.shape = (100,)
 
 So `y` contains the correct class label for each sample.
 
-#### Input Features (`X`)
+### Input Features (`X`)
 
 ```python
 X = df.iloc[0:100, [0, 2]].values
@@ -291,7 +289,7 @@ X.shape = (n_samples, n_features)
 y.shape = (n_samples,)
 ```
 
-### 3. Training the Perceptron
+## 3. Training the Perceptron
 
 ```python
 ppn = Perceptron(eta=0.1, n_iter=10)
@@ -309,7 +307,7 @@ If an entire epoch has **zero updates**, all training samples are classified cor
 
 Therefore, the perceptron has **converged**.
 
-### 4. Linear Separability
+## 4. Linear Separability
 
 A basic perceptron can converge if the two classes are **linearly separable**.
 
@@ -337,7 +335,7 @@ The perceptron does not converge
 
 This is why we usually set a maximum number of epochs.
 
-### 5. Decision Boundary
+## 5. Decision Boundary
 
 For an input `x`, the perceptron calculates:
 
@@ -368,7 +366,7 @@ Depending on the number of features:
 n features -> hyperplane
 ```
 
-### 6. Prediction Workflow
+## 6. Prediction Workflow
 
 For a new sample:
 
@@ -385,7 +383,7 @@ Apply threshold
 Predict Class 0 or Class 1
 ```
 
-### Key Takeaways
+## Key Takeaways
 
 - `X` contains the **input features**.
 - `y` contains the **correct class labels**.
@@ -400,11 +398,11 @@ Predict Class 0 or Class 1
 
 ---
 
-## Adaline and Gradient Descent
+# Adaline and Gradient Descent
 
-### 1. Perceptron vs. Adaline
+## 1. Perceptron vs. Adaline
 
-#### Perceptron
+### Perceptron
 
 The Perceptron uses the predicted class label to update its parameters.
 
@@ -420,7 +418,7 @@ Class Label
 Parameter Update
 ```
 
-#### Adaline
+### Adaline
 
 Adaline uses the continuous activation value to calculate the loss.
 
@@ -446,13 +444,13 @@ The activation function in Adaline is the identity function:
 
 The threshold function is only used to obtain the final class prediction.
 
-#### Key Difference
+### Key Difference
 
 - **Perceptron:** updates parameters based on predicted class labels.
 - **Adaline:** updates parameters based on continuous activation values.
 - This allows Adaline to use a differentiable loss function and Gradient Descent.
 
-### 2. Gradient Descent
+## 2. Gradient Descent
 
 Gradient Descent minimizes a loss function by updating the model parameters:
 
@@ -483,23 +481,23 @@ Reduce MSE
 Approach a minimum of the loss function
 ```
 
-### 3. Learning Rate
+## 3. Learning Rate
 
 The learning rate `η` controls the size of each parameter update.
 
-#### Learning Rate Too Large
+### Learning Rate Too Large
 
 - Updates are too large.
 - The optimizer may overshoot the minimum.
 - Loss may oscillate or diverge.
 
-#### Learning Rate Too Small
+### Learning Rate Too Small
 
 - Updates are very small.
 - Training can converge very slowly.
 - More epochs are required.
 
-### 4. Epoch
+## 4. Epoch
 
 One epoch means:
 
@@ -507,7 +505,7 @@ One epoch means:
 
 An epoch does **not** necessarily mean one parameter update.
 
-#### Batch Gradient Descent
+### Batch Gradient Descent
 
 Uses the entire training dataset to calculate the gradient.
 
@@ -525,7 +523,7 @@ Therefore:
 1 epoch = 1 parameter update
 ```
 
-#### Stochastic Gradient Descent (SGD)
+### Stochastic Gradient Descent (SGD)
 
 Updates the parameters after each training sample.
 
@@ -542,7 +540,7 @@ Therefore, if there are 100 samples:
 1 epoch = 100 parameter updates
 ```
 
-### 5. Vectorized Weight Update in Adaline
+## 5. Vectorized Weight Update in Adaline
 
 Adaline uses the entire training set in Batch Gradient Descent.
 
@@ -571,7 +569,7 @@ one value for each weight
 
 This is an example of **vectorization**.
 
-### 6. NumPy `dot()`
+## 6. NumPy `dot()`
 
 The behavior of `dot()` depends on the dimensions of its inputs.
 
@@ -599,7 +597,7 @@ In this case:
 
 The two output values correspond to the two weights.
 
-### Key Takeaways
+## Key Takeaways
 
 - Adaline uses continuous activation values to calculate MSE.
 - Adaline's activation function is `σ(z) = z`.
@@ -613,9 +611,11 @@ The two output values correspond to the two weights.
 - SGD updates once per training sample.
 - `X.T.dot(errors)` calculates weight-update information using vectorization.
 
-## Feature Scaling
+---
 
-### Why Feature Scaling Matters
+# Feature Scaling
+
+## Why Feature Scaling Matters
 
 Gradient Descent is sensitive to differences in feature scales.
 
@@ -632,8 +632,6 @@ Large differences in scale can cause **unbalanced gradient updates**:
 - The same learning rate may be too small in another direction → **slow convergence**
 
 Feature scaling makes the optimization problem better conditioned, allowing Gradient Descent to converge **faster and more stably**.
-
----
 
 ## Standardization
 
@@ -659,8 +657,6 @@ After standardization:
 Standardized values are **dimensionless** because the original physical unit is removed.
 
 For example, a standardized value of `-0.8` means that the value is **0.8 standard deviations below the mean**.
-
----
 
 ## Standardization with NumPy
 
@@ -697,8 +693,6 @@ NumPy broadcasting allows:
 
 Therefore, every feature is automatically centered using its own mean and scaled using its own standard deviation.
 
----
-
 ## Effect on Gradient Descent
 
 Without feature scaling:
@@ -725,15 +719,11 @@ Easier learning-rate selection
 Faster and more stable convergence
 ```
 
----
-
 ## Key Takeaway
 
 > **Feature scaling improves the optimization geometry, helping Gradient Descent find the minimum more efficiently.**
 
-
-
-
+---
 
 # Stochastic Gradient Descent (SGD)
 
@@ -751,8 +741,6 @@ For a dataset with $N$ samples:
 - Updates per epoch: **1**
 - Gradient: stable and accurate
 - Disadvantage: computationally expensive for large datasets
-
----
 
 ## 2. Stochastic Gradient Descent (SGD)
 
@@ -780,8 +768,6 @@ $$
 
 Individual estimates may be inaccurate, but over many randomly selected samples, they approximate the full-dataset gradient.
 
----
-
 ## 3. Why SGD Is Noisy
 
 Different samples produce different gradient estimates.
@@ -796,8 +782,6 @@ Random fluctuations can sometimes help the optimizer escape:
 
 - shallow local minima
 - flat regions
-
----
 
 ## 4. Shuffling
 
@@ -814,8 +798,6 @@ Shuffling:
 - makes gradient estimates more random
 
 `X` and `y` must always be shuffled **together** so that each sample keeps its correct label.
-
----
 
 ## 5. Mini-Batch Gradient Descent
 
@@ -844,8 +826,6 @@ So there are approximately **100 parameter updates per epoch**.
 | SGD | 1 | $N$ |
 | Mini-batch GD | Small batch | $N / \text{batch size}$ |
 
----
-
 ## 6. Why Mini-Batch Is Common in Deep Learning
 
 Mini-batch training combines the advantages of Batch GD and SGD:
@@ -857,8 +837,6 @@ Mini-batch training combines the advantages of Batch GD and SGD:
 - GPU parallelism
 
 Therefore, modern neural networks are usually trained with **mini-batch SGD-family optimizers**.
-
----
 
 ## 7. Epoch vs. Parameter Update
 
@@ -890,8 +868,6 @@ $$
 \frac{\text{number of samples}}
 {\text{batch size}}
 $$
-
----
 
 ## 8. SGD in Adaline
 
@@ -930,8 +906,6 @@ $$
 
 The main difference is that the gradient is estimated from **one sample instead of the entire dataset**.
 
----
-
 ## 9. Online Learning
 
 SGD naturally supports **online learning**.
@@ -947,8 +921,6 @@ model.partial_fit(X_new, y_new)
 - keeps the existing weights
 - learns from newly arriving data
 - does not reinitialize the model
-
----
 
 ## 10. Learning Rate in SGD
 
@@ -973,8 +945,6 @@ Later training
 ```
 
 This idea later appears in neural networks as **learning-rate scheduling**.
-
----
 
 # Key Takeaways
 
