@@ -150,7 +150,7 @@ During prediction, the learned parameters are used **without updating them**.
 
 ---
 
-# Chapter 2 — Perceptron Training
+## Perceptron Training
 
 ### 1. What does `fit()` do?
 
@@ -219,7 +219,7 @@ If the data is linearly separable, the Perceptron can eventually converge to zer
 
 ---
 
-# Chapter 2 — Perceptron on the Iris Dataset
+## Perceptron on the Iris Dataset
 
 ### 1. Features vs. Classes
 
@@ -400,11 +400,11 @@ Predict Class 0 or Class 1
 
 ---
 
-# Chapter 2 — Adaline and Gradient Descent
+## Adaline and Gradient Descent
 
-## 1. Perceptron vs. Adaline
+### 1. Perceptron vs. Adaline
 
-### Perceptron
+#### Perceptron
 
 The Perceptron uses the predicted class label to update its parameters.
 
@@ -420,7 +420,7 @@ Class Label
 Parameter Update
 ```
 
-### Adaline
+#### Adaline
 
 Adaline uses the continuous activation value to calculate the loss.
 
@@ -446,13 +446,13 @@ The activation function in Adaline is the identity function:
 
 The threshold function is only used to obtain the final class prediction.
 
-### Key Difference
+#### Key Difference
 
 - **Perceptron:** updates parameters based on predicted class labels.
 - **Adaline:** updates parameters based on continuous activation values.
 - This allows Adaline to use a differentiable loss function and Gradient Descent.
 
-## 2. Gradient Descent
+### 2. Gradient Descent
 
 Gradient Descent minimizes a loss function by updating the model parameters:
 
@@ -483,23 +483,23 @@ Reduce MSE
 Approach a minimum of the loss function
 ```
 
-## 3. Learning Rate
+### 3. Learning Rate
 
 The learning rate `η` controls the size of each parameter update.
 
-### Learning Rate Too Large
+#### Learning Rate Too Large
 
 - Updates are too large.
 - The optimizer may overshoot the minimum.
 - Loss may oscillate or diverge.
 
-### Learning Rate Too Small
+#### Learning Rate Too Small
 
 - Updates are very small.
 - Training can converge very slowly.
 - More epochs are required.
 
-## 4. Epoch
+### 4. Epoch
 
 One epoch means:
 
@@ -507,7 +507,7 @@ One epoch means:
 
 An epoch does **not** necessarily mean one parameter update.
 
-### Batch Gradient Descent
+#### Batch Gradient Descent
 
 Uses the entire training dataset to calculate the gradient.
 
@@ -525,7 +525,7 @@ Therefore:
 1 epoch = 1 parameter update
 ```
 
-### Stochastic Gradient Descent (SGD)
+#### Stochastic Gradient Descent (SGD)
 
 Updates the parameters after each training sample.
 
@@ -542,7 +542,7 @@ Therefore, if there are 100 samples:
 1 epoch = 100 parameter updates
 ```
 
-## 5. Vectorized Weight Update in Adaline
+### 5. Vectorized Weight Update in Adaline
 
 Adaline uses the entire training set in Batch Gradient Descent.
 
@@ -571,7 +571,7 @@ one value for each weight
 
 This is an example of **vectorization**.
 
-## 6. NumPy `dot()`
+### 6. NumPy `dot()`
 
 The behavior of `dot()` depends on the dimensions of its inputs.
 
@@ -599,7 +599,7 @@ In this case:
 
 The two output values correspond to the two weights.
 
-## Key Takeaways
+### Key Takeaways
 
 - Adaline uses continuous activation values to calculate MSE.
 - Adaline's activation function is `σ(z) = z`.
@@ -613,9 +613,9 @@ The two output values correspond to the two weights.
 - SGD updates once per training sample.
 - `X.T.dot(errors)` calculates weight-update information using vectorization.
 
-# Feature Scaling
+## Feature Scaling
 
-## Why Feature Scaling Matters
+### Why Feature Scaling Matters
 
 Gradient Descent is sensitive to differences in feature scales.
 
