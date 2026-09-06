@@ -1,6 +1,6 @@
-# Chapter 2 — Training Simple ML Algorithms
+# Chapter 2 — Training Simple ML Algorithms for Classification
 
-## Perceptron
+## Perceptron: Core Concepts
 
 ### 1. Features, Labels, and Predictions
 
@@ -150,6 +150,8 @@ During prediction, the learned parameters are used **without updating them**.
 
 ---
 
+# Chapter 2 — Perceptron Training
+
 ### 1. What does `fit()` do?
 
 `fit()` trains the Perceptron by repeatedly going through the training data.
@@ -216,6 +218,8 @@ Updating the parameters for one example can also affect predictions for other ex
 If the data is linearly separable, the Perceptron can eventually converge to zero classification errors. If the data is not linearly separable, it may never reach zero errors.
 
 ---
+
+# Chapter 2 — Perceptron on the Iris Dataset
 
 ### 1. Features vs. Classes
 
