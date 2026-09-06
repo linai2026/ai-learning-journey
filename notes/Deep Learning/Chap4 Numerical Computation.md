@@ -666,9 +666,7 @@ $$
 The Lagrangian is:
 
 $$
-L(x,\lambda)
-=
-f(x)+\lambda(x^Tx-1)
+L(x,\lambda) =f(x)+\lambda(x^Tx-1)
 $$
 
 with:
@@ -693,9 +691,7 @@ Therefore:
 Differentiate the Lagrangian with respect to `x`:
 
 $$
-\nabla_x L
-=
-A^TAx-A^Tb+2\lambda x
+\nabla_x L = A^TAx-A^Tb+2\lambda x
 $$
 
 At the optimum:
@@ -725,9 +721,7 @@ Thus, `lambda` controls the strength of the constraint.
 Differentiate the Lagrangian with respect to `lambda`:
 
 $$
-\frac{\partial L}{\partial\lambda}
-=
-x^Tx-1
+\frac{\partial L}{\partial\lambda} = x^Tx-1
 $$
 
 If:

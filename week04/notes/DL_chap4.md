@@ -296,9 +296,7 @@ $$
 The Lagrangian is:
 
 $$
-L(x,\lambda)
-=
-f(x)+\lambda(x^Tx-1)
+L(x,\lambda) = f(x)+\lambda(x^Tx-1)
 $$
 
 with:
@@ -357,9 +355,7 @@ Thus, `lambda` controls the strength of the constraint.
 Differentiate the Lagrangian with respect to `lambda`:
 
 $$
-\frac{\partial L}{\partial\lambda}
-=
-x^Tx-1
+\frac{\partial L}{\partial\lambda} = x^Tx-1
 $$
 
 If:
