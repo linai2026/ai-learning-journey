@@ -325,9 +325,7 @@ Therefore:
 Differentiate the Lagrangian with respect to `x`:
 
 $$
-\nabla_x L
-=
-A^TAx-A^Tb+2\lambda x
+\nabla_x L = A^TAx-A^Tb+2\lambda x
 $$
 
 At the optimum:
