@@ -1,23 +1,27 @@
-MLwPS Chapter 3 — Classification with Scikit-Learn
-1. Scikit-Learn Workflow
-Train-Test Split
+Scikit-Learn Workflow — Chapter 3 Notes
+1. Train-Test Split
 The dataset is divided into:
-* Training set: used to learn model parameters.
-* Test set: used to evaluate performance on unseen data.
-from sklearn.model_selection import train_test_split
-
+* Training set → used to learn model parameters
+* Test set → used to evaluate performance on unseen data
 X_train, X_test, y_train, y_test = train_test_split(
-    X,
-    y,
+    X, y,
     test_size=0.3,
     random_state=1,
     stratify=y
 )
-Important parameters:
-* test_size=0.3: 30% test data and 70% training data.
-* random_state=1: makes the split reproducible.
-* stratify=y: preserves class proportions.
-Standardization
+Important Parameters
+test_size=0.3
+* 30% test data
+* 70% training data
+random_state=1
+* Makes the random split reproducible.
+stratify=y
+* Preserves the class distribution in the training and test sets.
+ 
+⸻
+ 
+2. Feature Scaling with 
+StandardScaler
 from sklearn.preprocessing import StandardScaler
 
 sc = StandardScaler()
@@ -26,24 +30,38 @@ sc.fit(X_train)
 
 X_train_std = sc.transform(X_train)
 X_test_std = sc.transform(X_test)
-fit() learns the mean and standard deviation from the training set:
-\mu_j = \text{mean of feature } j
-\sigma_j = \text{standard deviation of feature } j
-Standardization:
-x'_{ij} = \frac{x_{ij}-\mu_j}{\sigma_j}
-Important rule:
+fit()
+StandardScaler.fit() learns the preprocessing parameters for each feature:
+\mu_j = \text{mean}
+\sigma_j = \text{standard deviation}
+transform()
+The data is standardized using:
+x'_{ij} = \frac{x_{ij} - \mu_j}{\sigma_j}
+The same \mu and \sigma learned from the training set must also be used for the test set.
 X_train
-→ fit scaler
-→ learn μ and σ
-→ transform X_train
-→ transform X_test using the same μ and σ
-Never fit the scaler on the test set because this causes data leakage.
-Model Workflow
+   ↓
+fit scaler
+   ↓
+learn μ and σ
+   ↓
+transform X_train
+   ↓
+transform X_test using the same μ and σ
+Do not fit the scaler on the test set because this causes data leakage.
+ 
+⸻
+ 
+3. Scikit-Learn Model Workflow
+A typical scikit-learn workflow is:
 create model
-→ fit
-→ learn parameters
-→ predict
-→ evaluate
+     ↓
+fit
+     ↓
+learn parameters
+     ↓
+predict
+     ↓
+evaluate
 Example:
 from sklearn.linear_model import Perceptron
 
@@ -52,194 +70,720 @@ ppn = Perceptron(eta0=0.1, random_state=1)
 ppn.fit(X_train_std, y_train)
 
 y_pred = ppn.predict(X_test_std)
-fit() uses:
-* X_train
-* y_train
-to learn model parameters.
-predict() only needs input features because the parameters have already been learned.
+ 
+⸻
+ 
+4. 
+fit()
+vs 
+predict()
+Training
+ppn.fit(X_train_std, y_train)
+Requires:
+* X_train → input features
+* y_train → correct labels
+The model uses them to learn its parameters.
+For a linear model, these include:
+w,\quad b
+ 
+⸻
+ 
+Prediction
+y_pred = ppn.predict(X_test_std)
+Only requires:
 X_test
-→ model
-→ predicted labels
-Evaluation
+because the model parameters have already been learned.
+Conceptually:
+X_{\text{test}} \rightarrow \hat y
+ 
+⸻
+ 
+5. Model Evaluation
+After prediction:
 from sklearn.metrics import accuracy_score
 
 accuracy_score(y_test, y_pred)
-Accuracy:
+Here:
+y_test = true labels
+y_pred = predicted labels
+Accuracy is:
 \text{Accuracy} = \frac{\text{correct predictions}} {\text{total predictions}}
-Alternatively:
+For example:
+\frac{44}{45} \approx 0.978
+so:
+Accuracy = 97.8%
+A classifier can also use:
 ppn.score(X_test_std, y_test)
-Complete Pipeline
+ 
+⸻
+ 
+6. Complete Machine Learning Pipeline
 raw data
-→ train_test_split
-→ X_train / X_test
-→ fit preprocessing on X_train
-→ transform X_train and X_test
-→ model.fit(X_train, y_train)
-→ model.predict(X_test)
-→ compare predictions with y_test
-→ evaluate generalization
+   ↓
+train_test_split
+   ↓
+X_train / X_test
+   ↓
+fit preprocessing on X_train
+   ↓
+transform X_train and X_test
+   ↓
+model.fit(X_train, y_train)
+   ↓
+model.predict(X_test)
+   ↓
+y_pred
+   ↓
+compare y_pred with y_test
+   ↓
+evaluate generalization performance
  
 ⸻
  
-2. Perceptron Limitation
-The Perceptron converges only if the training data is linearly separable.
-non-linearly separable data
-→ misclassified samples remain
-→ weights keep changing
-→ Perceptron may not converge
-This motivates more powerful classifiers such as Logistic Regression.
+7. Perceptron Limitation
+The perceptron converges only when the training data is linearly separable.
+non-linearly-separable data
+        ↓
+misclassified samples remain
+        ↓
+weights keep changing
+        ↓
+Perceptron may not converge
+This motivates moving to more powerful linear classifiers such as Logistic Regression.
  
 ⸻
  
-3. Logistic Regression
-Net Input
-Logistic Regression first computes:
-z = w^Tx+b
+Key Takeaways
+Training set → learn
+Test set → evaluate
+
+StandardScaler.fit()
+→ learns μ and σ
+
+model.fit()
+→ learns model parameters such as w and b
+
+predict()
+→ produces predictions
+
+y_test
+→ only used for evaluation
+
+stratify=y
+→ preserves class proportions
+
+Never learn preprocessing or model parameters from the test set.
+
+
+
+# Logistic Regression — First Understanding
+
+## 1. Why Logistic Regression?
+
+Perceptron may not converge when the classes are not perfectly linearly separable.
+
+Logistic Regression:
+
+- is a classification model
+- can output class probabilities
+- learns model parameters by minimizing a loss function
+
+---
+
+## 2. Net Input
+
+The linear part is:
+
+\[
+z = w^T x + b
+\]
+
 where:
-* x: input features
-* w: weights
-* b: bias
-* z: net input
-Sigmoid Function
-The sigmoid function converts z into a probability:
-\sigma(z) = \frac{1}{1+e^{-z}}
-Its output satisfies:
+
+- \(x\): input features
+- \(w\): weights
+- \(b\): bias
+- \(z\): net input
+
+---
+
+## 3. Logit
+
+For probability \(p\), the odds are:
+
+\[
+\text{odds} = \frac{p}{1-p}
+\]
+
+The logit function is:
+
+\[
+\text{logit}(p)
+=
+\log\frac{p}{1-p}
+\]
+
+Logistic Regression assumes:
+
+\[
+\text{logit}(p)=w^Tx+b=z
+\]
+
+---
+
+## 4. Sigmoid Function
+
+The sigmoid function is:
+
+\[
+\sigma(z)
+=
+\frac{1}{1+e^{-z}}
+\]
+
+It converts the net input \(z\) into a value between 0 and 1:
+
+\[
 0 < \sigma(z) < 1
+\]
+
 Important values:
-z\rightarrow-\infty \Rightarrow \sigma(z)\rightarrow0
-z=0 \Rightarrow \sigma(z)=0.5
-z\rightarrow+\infty \Rightarrow \sigma(z)\rightarrow1
-Probability Interpretation
-For binary classification:
-P(y=1\mid x)=\sigma(z)
-P(y=0\mid x)=1-\sigma(z)
+
+\[
+z\to-\infty
+\Rightarrow
+\sigma(z)\to0
+\]
+
+\[
+z=0
+\Rightarrow
+\sigma(z)=0.5
+\]
+
+\[
+z\to+\infty
+\Rightarrow
+\sigma(z)\to1
+\]
+
+---
+
+## 5. Probability Interpretation
+
+In binary Logistic Regression:
+
+\[
+\sigma(z)
+=
+P(y=1\mid x)
+\]
+
+and:
+
+\[
+P(y=0\mid x)
+=
+1-\sigma(z)
+\]
+
 Example:
+
+\[
 \sigma(z)=0.8
+\]
+
 means:
+
+\[
 P(y=1\mid x)=0.8
-Classification Rule
+\]
+
+\[
+P(y=0\mid x)=0.2
+\]
+
+---
+
+## 6. From Probability to Class
+
 The default threshold is:
+
+\[
 0.5
-Therefore:
-\hat y= \begin{cases} 1 & \sigma(z)\ge0.5\\ 0 & \sigma(z)<0.5 \end{cases}
-Because:
+\]
+
+Prediction rule:
+
+\[
+\hat y=
+\begin{cases}
+1 & \sigma(z)\ge0.5\\
+0 & \sigma(z)<0.5
+\end{cases}
+\]
+
+Because sigmoid is monotonically increasing and:
+
+\[
 \sigma(0)=0.5
+\]
+
 we have:
-\sigma(z)\ge0.5 \iff z\ge0
+
+\[
+\sigma(z)\ge0.5
+\iff
+z\ge0
+\]
+
 Therefore, the decision boundary is:
+
+\[
 w^Tx+b=0
-What Logistic Regression Learns
-Logistic Regression learns:
-w,\ b
-It does not directly learn probabilities.
+\]
+
+---
+
+## 7. Adaline vs Logistic Regression
+
+### Adaline
+
+\[
 x
-→ z = wᵀx + b
-→ sigmoid
-→ probability
-→ threshold
-→ class
- 
-⸻
- 
-4. Logistic Loss
+\rightarrow
+z=w^Tx+b
+\rightarrow
+\text{identity activation}
+\rightarrow
+\text{class}
+\]
+
+### Logistic Regression
+
+\[
+x
+\rightarrow
+z=w^Tx+b
+\rightarrow
+\text{sigmoid}
+\rightarrow
+\text{probability}
+\rightarrow
+\text{threshold}
+\rightarrow
+\text{class}
+\]
+
+The main difference is the activation function.
+
+---
+
+## 8. What Does Logistic Regression Learn?
+
+Logistic Regression learns:
+
+\[
+\boxed{w,b}
+\]
+
+It does **not directly learn probabilities**.
+
+Instead:
+
+\[
+w,b
+\rightarrow
+z=w^Tx+b
+\rightarrow
+\sigma(z)
+\rightarrow
+P(y=1\mid x)
+\]
+
+---
+
+## Core Workflow
+
+\[
+\boxed{
+x
+\rightarrow
+z=w^Tx+b
+\rightarrow
+\sigma(z)
+\rightarrow
+P(y=1\mid x)
+\rightarrow
+\text{threshold}
+\rightarrow
+\hat y
+}
+\]
+
+### Key Points
+
+- Sigmoid input: \(z=w^Tx+b\)
+- Sigmoid output: \((0,1)\)
+- \(\sigma(0)=0.5\)
+- \(\sigma(z)\ge0.5 \iff z\ge0\)
+- Decision boundary: \(w^Tx+b=0\)
+- Learned parameters: \(w,b\)
+
+
+
+
+# Logistic Regression — Logistic Loss
+
+## 1. From Net Input to Probability
+
+Logistic Regression first computes the net input:
+
+\[
+z = \mathbf{w}^T\mathbf{x} + b
+\]
+
+Then it applies the sigmoid function:
+
+\[
+p = \sigma(z)
+\]
+
+where \(p\) is the predicted probability of class 1.
+
+---
+
+## 2. Likelihood
+
 For one sample:
-p=\sigma(z)
-The logistic loss is:
-L = -\left[ y\log p + (1-y)\log(1-p) \right]
-If y=1
+
+\[
+p(y|\mathbf{x})
+=
+p^y(1-p)^{1-y}
+\]
+
+If:
+
+\[
+y=1
+\]
+
+then:
+
+\[
+p(y|\mathbf{x}) = p
+\]
+
+If:
+
+\[
+y=0
+\]
+
+then:
+
+\[
+p(y|\mathbf{x}) = 1-p
+\]
+
+For the whole training set, assuming samples are independent:
+
+\[
+\mathcal{L}
+=
+\prod_{i=1}^{n}
+p_i^{y_i}(1-p_i)^{1-y_i}
+\]
+
+Training tries to maximize this likelihood.
+
+---
+
+## 3. Log-Likelihood
+
+We take the logarithm of the likelihood:
+
+\[
+\log \mathcal{L}
+=
+\sum_{i=1}^{n}
+\left[
+y_i\log p_i
++
+(1-y_i)\log(1-p_i)
+\right]
+\]
+
+Reasons for using the log:
+
+- Reduces the risk of numerical underflow.
+- Converts products into sums.
+- Makes derivatives easier to compute.
+
+---
+
+## 4. Logistic Loss
+
+Instead of maximizing log-likelihood, we minimize its negative:
+
+\[
+L
+=
+-\left[
+y\log p
++
+(1-y)\log(1-p)
+\right]
+\]
+
+### If \(y=1\)
+
+\[
 L=-\log p
-p → 1
-→ loss → 0
+\]
 
-p → 0
-→ loss → ∞
-If y=0
-L=-\log(1-p)
-p → 0
-→ loss → 0
-
-p → 1
-→ loss → ∞
-Logistic loss strongly penalizes confident wrong predictions.
-Likelihood
-For the whole training set:
-\mathcal{L} = \prod_{i=1}^{n} p_i^{y_i} (1-p_i)^{1-y_i}
-Logistic Regression maximizes likelihood, or equivalently minimizes negative log-likelihood.
-The log-likelihood is:
-\log\mathcal{L} = \sum_{i=1}^{n} \left[ y_i\log p_i + (1-y_i)\log(1-p_i) \right]
-Using the logarithm:
-* converts products into sums;
-* reduces numerical underflow;
-* simplifies differentiation.
-Gradient Update
-For one sample:
-\frac{\partial L}{\partial w_j} = (p-y)x_j
 Therefore:
-w_j \leftarrow w_j-\eta(p-y)x_j
+
+\[
+p\rightarrow1
+\Rightarrow
+L\rightarrow0
+\]
+
+\[
+p\rightarrow0
+\Rightarrow
+L\rightarrow\infty
+\]
+
+### If \(y=0\)
+
+\[
+L=-\log(1-p)
+\]
+
+Therefore:
+
+\[
+p\rightarrow0
+\Rightarrow
+L\rightarrow0
+\]
+
+\[
+p\rightarrow1
+\Rightarrow
+L\rightarrow\infty
+\]
+
+---
+
+## 5. Main Intuition
+
+Logistic loss rewards correct predictions and strongly penalizes confident wrong predictions.
+
+For example, if:
+
+\[
+y=1
+\]
+
+then:
+
+\[
+p=0.99
+\]
+
+gives a very small loss, while:
+
+\[
+p=0.01
+\]
+
+gives a very large loss.
+
+---
+
+## 6. Gradient Descent Update
+
+The gradient with respect to a weight \(w_j\) is:
+
+\[
+\frac{\partial L}{\partial w_j}
+=
+(p-y)x_j
+\]
+
+Therefore:
+
+\[
+w_j
+\leftarrow
+w_j-\eta(p-y)x_j
+\]
+
 or equivalently:
-w_j \leftarrow w_j+\eta(y-p)x_j
+
+\[
+w_j
+\leftarrow
+w_j+\eta(y-p)x_j
+\]
+
 For the bias:
-b \leftarrow b+\eta(y-p)
-Training workflow:
+
+\[
+b
+\leftarrow
+b+\eta(y-p)
+\]
+
+---
+
+## 7. Logistic Regression Training Flow
+
+\[
 X
-→ z = Xw + b
-→ sigmoid
-→ probability
-→ logistic loss
-→ gradient
-→ update w and b
+\rightarrow
+z=Xw+b
+\rightarrow
+p=\sigma(z)
+\rightarrow
+L(y,p)
+\rightarrow
+\nabla L
+\rightarrow
+w,b\text{ update}
+\]
+
+The model learns:
+
+\[
+\boxed{w \text{ and } b}
+\]
+
+The probability \(p\) is computed from these parameters.
+
+---
+
+## 8. Code Interpretation
+
+```python
+net_input = self.net_input(X)
+means:
+[ z=Xw+b ]
+output = self.activation(net_input)
+means:
+[ p=\sigma(z) ]
+errors = y - output
+means:
+[ y-p ]
+Here, output is the predicted probability, not the predicted class.
  
 ⸻
  
-5. Logistic Regression in Scikit-Learn
+Key Takeaway
+Logistic Regression learns (w) and (b) by minimizing logistic loss:
+[ \boxed{ X \rightarrow z \rightarrow p \rightarrow loss \rightarrow gradient \rightarrow parameter\ update } ]
+
+
+
+
+
+
+
+可以。下面这版把 p70–79 压缩成适合你现在复习和保存到 GitHub/VS Code 的统一英文 Markdown 格式，保留核心概念，不塞太多细节。
+# Logistic Regression, Regularization, and Linear SVM
+
+## 1. Logistic Regression with Scikit-Learn
+
+A logistic regression model can be trained using:
+
+```python
 from sklearn.linear_model import LogisticRegression
 
 lr = LogisticRegression(
     C=100.0,
-    solver="lbfgs"
+    solver='lbfgs',
+    multi_class='ovr'
 )
 
 lr.fit(X_train_std, y_train)
-Class Probabilities
+Basic workflow:
+training data
+→ fit()
+→ learn model parameters
+→ predict classes
+A decision boundary separates different predicted classes.
+ 
+⸻
+ 
+2. Predicting Class Probabilities
+Use:
 lr.predict_proba(X_test_std)
-For 3 samples and 3 classes, the output shape is:
+For:
+* 3 samples
+* 3 classes
+the output shape is:
 (3, 3)
+Each row represents one sample.
 Example:
 [0.01, 0.14, 0.85]
 means:
 P(class 0) = 0.01
 P(class 1) = 0.14
 P(class 2) = 0.85
-Each row sums to approximately:
+The probabilities in each row sum to approximately:
 1
-The predicted class is the class with the highest probability:
+ 
+⸻
+ 
+3. From Probabilities to Class Labels
+The predicted class is the class with the highest probability.
 lr.predict_proba(X_test_std).argmax(axis=1)
-Usually, simply use:
+Here:
+axis=1
+means finding the maximum value across columns for each sample.
+Scikit-learn provides a simpler method:
 lr.predict(X_test_std)
-Single-Sample Prediction
-Scikit-learn expects:
+Conceptually:
+predict_proba()
+→ class probabilities
+→ argmax
+→ predicted class
+ 
+⸻
+ 
+4. Predicting a Single Sample
+Scikit-learn expects input with shape:
 (n_samples, n_features)
-A sample with shape:
+A single sample may have shape:
 (n_features,)
-must be reshaped:
+For example:
+(2,)
+It should be converted to:
+(1, 2)
+using:
 X_test_std[0, :].reshape(1, -1)
  
 ⸻
  
-6. Underfitting and Overfitting
+5. Underfitting and Overfitting
 Underfitting
-The model is too simple.
+The model is too simple to capture the pattern in the data.
 underfitting
 → high bias
 → poor training performance
 → poor test performance
 Overfitting
-The model fits the training data too closely.
+The model fits the training data too closely, including noise.
 overfitting
 → high variance
-→ excellent training performance
-→ poor test performance
-Good Generalization
+→ very good training performance
+→ poor generalization to unseen data
+Good Fit
+A good model balances bias and variance.
 too simple
 → underfitting
 
@@ -251,216 +795,408 @@ too complex
  
 ⸻
  
-7. Regularization
-Regularization reduces overfitting by penalizing large weights.
+6. Regularization
+Regularization helps reduce overfitting by penalizing large model weights.
 For L2 regularization:
-L = L_{\text{data}} + \frac{\lambda}{2n} \|w\|^2
+$$
+ 
+L(w,b)
+L_{\text{data}} + \frac{\lambda}{2n}|w|^2 $$
 where:
-\|w\|^2 = \sum_j w_j^2
-Effect:
+$$
+ 
+|w|^2
+\sum_j w_j^2 $$
+The regularization term penalizes large weights.
+Conceptually:
 large weights
 → larger penalty
 → weights shrink
 → simpler model
-→ lower overfitting risk
-Regularization Strength
-Large \lambda:
-λ ↑
+→ less overfitting
+ 
+⸻
+ 
+7. Effect of L2 Regularization on the Gradient
+Without regularization:
+$$ \frac{\partial L}{\partial w_j} $$
+With L2 regularization:
+$$
+ 
+\frac{\partial L}{\partial w_j}
+\frac{\partial L_{\text{data}}}{\partial w_j} + \frac{\lambda}{n}w_j $$
+The additional term:
+$$ \frac{\lambda}{n}w_j $$
+pushes large weights toward zero.
+ 
+⸻
+ 
+8. Regularization Parameter $\lambda$
+The parameter:
+$$ \lambda $$
+controls regularization strength.
+larger λ
 → stronger regularization
 → smaller weights
 → simpler model
-Small \lambda:
-λ ↓
+
+smaller λ
 → weaker regularization
 → larger weights allowed
 → more complex model
 Too much regularization can cause underfitting.
-Parameter C
-Scikit-learn commonly uses C, which is inversely related to regularization strength.
+ 
+⸻
+ 
+9. The Parameter C
+Scikit-learn commonly uses:
+C
+instead of directly using $\lambda$.
+C is inversely related to regularization strength.
 C ↑
-→ weaker regularization
-→ larger weights allowed
-→ more complex model
+→ regularization ↓
+→ weights can become larger
+→ stronger fit to training data
 
 C ↓
-→ stronger regularization
-→ smaller weights
+→ regularization ↑
+→ weights become smaller
 → simpler model
+Therefore:
+$$ C \uparrow \Rightarrow \text{regularization strength} \downarrow $$
+$$ C \downarrow \Rightarrow \text{regularization strength} \uparrow $$
  
 ⸻
  
-8. Linear Support Vector Machine
-Maximum-Margin Classification
-A linear SVM searches for the decision boundary with the largest margin.
-possible separating boundaries
-→ compare margins
+Linear Support Vector Machine
+10. Maximum-Margin Classification
+Many decision boundaries may correctly separate two classes.
+SVM does not choose an arbitrary boundary.
+Instead, it searches for the boundary with the largest margin.
+possible decision boundaries
+→ find the largest margin
 → choose maximum-margin boundary
-Decision boundary:
-w^Tx+b=0
-In two dimensions, this is a line.
-In higher dimensions, it is called a hyperplane.
-Support Vectors
-Support vectors are the training samples closest to the decision boundary.
-They determine:
-* the position of the boundary;
-* the margin width.
-Samples far from the boundary usually have much less influence.
-Margin
-The margin is the distance between the decision boundary and the closest training samples.
-support vectors
-→ determine margin
-→ determine decision boundary
-A larger margin often improves generalization.
+Main objective:
+$$ \boxed{\text{maximize the margin}} $$
  
 ⸻
  
-9. Hard Margin and Soft Margin
+11. Hyperplane and Decision Boundary
+The linear decision boundary can be written as:
+$$ w^Tx+b=0 $$
+In two dimensions, it is a line.
+In higher-dimensional spaces, it is called a:
+hyperplane
+For a linear SVM, the hyperplane is the decision boundary used for classification.
+ 
+⸻
+ 
+12. Support Vectors
+Support vectors are the training samples closest to the decision boundary.
+support vectors
+→ closest important training samples
+→ determine the position of the boundary
+→ determine the margin
+Samples far away from the decision boundary usually have less influence on the final SVM boundary.
+ 
+⸻
+ 
+13. Margin
+The margin is the gap between the separating boundary and the closest samples from the two classes.
+The closest samples are the support vectors.
+SVM tries to find:
+$$ \boxed{\text{maximum margin}} $$
+A larger margin often improves generalization to unseen data.
+ 
+⸻
+ 
+14. Hard Margin vs Soft Margin
 Hard Margin
-Hard-margin SVM requires all training samples to be correctly separated.
-It only works well when the data is perfectly linearly separable.
+A hard-margin SVM requires all training samples to be correctly separated.
+This works only when the data is perfectly linearly separable.
 Soft Margin
-Real-world data may contain:
-* noise;
-* outliers;
-* overlapping classes.
-Soft-margin SVM allows some violations.
+Real-world datasets may contain:
+* noise
+* outliers
+* overlapping classes
+Soft-margin SVM allows some margin violations or classification errors.
 allow some errors
-→ avoid fitting every sample perfectly
+→ avoid fitting every training sample perfectly
 → improve generalization
-Parameter C
-C controls the penalty for classification errors.
-Large C:
-C ↑
-→ stronger penalty for errors
-→ fewer tolerated violations
-→ usually narrower margin
-→ higher overfitting risk
-Small C:
-C ↓
-→ weaker penalty for errors
-→ more tolerated violations
-→ usually wider margin
-→ stronger regularization
-C does not directly specify margin width.
-It controls the trade-off between:
+ 
+⸻
+ 
+15. C in SVM
+In SVM, C controls the trade-off between:
 large margin
 vs.
 classification errors
+Large C
+large C
+→ strong penalty for errors
+→ less tolerance for violations
+→ usually narrower margin
+→ higher overfitting risk
+Small C
+small C
+→ weaker penalty for errors
+→ more tolerance for violations
+→ usually wider margin
+→ stronger regularization
+Important:
+C does not directly specify the margin width.
+It controls the trade-off between margin size and classification errors.
  
 ⸻
  
-10. Linear SVM in Scikit-Learn
+16. Linear SVM in Scikit-Learn
+A linear SVM can be created using:
 from sklearn.svm import SVC
 
 svm = SVC(
-    kernel="linear",
+    kernel='linear',
     C=1.0,
     random_state=1
 )
 
 svm.fit(X_train_std, y_train)
-Important parameters:
-* kernel="linear": use a linear decision boundary.
-* C: control the penalty for classification errors.
+kernel='linear'
+Uses a linear decision boundary.
+C
+Controls the trade-off between:
+margin size
+and
+classification errors
  
 ⸻
  
-11. Logistic Regression vs. Linear SVM
-Property	Logistic Regression	Linear SVM
-Main objective	Model class probability	Maximize margin
-Learned parameters	w,b	w,b
-Decision boundary	Linear	Linear
-Probability output	Yes	Not naturally
-Main focus	Probability	Margin
-Important samples	All samples contribute	Mainly support vectors
-Summary:
+17. Logistic Regression vs Linear SVM
+Logistic Regression
+Focuses on modeling class probabilities:
+$$ P(y \mid x) $$
+It can directly produce probability estimates using:
+predict_proba()
+Linear SVM
+Focuses on finding a maximum-margin decision boundary.
 Logistic Regression
 → probability
 
 Linear SVM
 → maximum-margin decision boundary
+Another important difference:
+Logistic Regression
+→ all training samples contribute to the loss
+
+SVM
+→ decision boundary is mainly determined by support vectors
+Both methods can produce similar linear decision boundaries, but their optimization objectives are different.
  
 ⸻
  
-12. Kernel SVM
-A linear SVM cannot solve every classification problem.
-For nonlinear data such as XOR:
-original feature space
-→ cannot separate with one straight line
-Kernel methods solve this by working in a higher-dimensional feature space.
-Feature Mapping
-x \rightarrow \phi(x)
+Key Relationships
+Underfitting
+→ high bias
+
+Overfitting
+→ high variance
+Regularization
+→ penalize large weights
+→ simpler model
+→ reduce overfitting
+C ↑
+→ weaker regularization
+
+C ↓
+→ stronger regularization
+Linear SVM
+→ decision boundary
+→ support vectors
+→ margin
+→ maximum margin
+→ soft margin
+→ C
+Large C
+→ punish classification errors more strongly
+→ narrower margin
+
+Small C
+→ tolerate more errors
+→ wider margin
+Core Takeaway
+Logistic Regression:
+learn class probabilities
+
+Regularization:
+control model complexity by penalizing large weights
+
+Linear SVM:
+find a decision boundary with the largest possible margin
+
+Soft-margin SVM:
+balance margin width and classification errors using C
+
+
+# Kernel SVM
+
+## 1. Why Kernel SVM?
+
+### Core Idea
+
+A linear SVM can only create a linear decision boundary.
+
+\[
+w^T x + b = 0
+\]
+
+Some datasets, such as XOR data, are not linearly separable in the original feature space.
+
+### Key Points
+
+- Linear SVM learns a linear decision boundary.
+- XOR data cannot be separated well by a straight line.
+- Kernel SVM is used for nonlinear classification problems.
+
+---
+
+## 2. Feature Mapping
+
+### Core Idea
+
+Kernel methods map the original data into a higher-dimensional feature space.
+
+\[
+x \rightarrow \phi(x)
+\]
+
 Example:
-(x_1,x_2) \rightarrow (x_1,x_2,x_1^2+x_2^2)
-The data may become linearly separable after transformation.
-original space
-→ nonlinear separation
 
-higher-dimensional space
-→ linear hyperplane
-A linear hyperplane in the transformed space corresponds to a nonlinear boundary in the original space.
- 
-⸻
- 
-13. Kernel Trick
-Explicitly computing \phi(x) may be expensive.
-Instead, a kernel directly computes:
-k(x^{(i)},x^{(j)}) = \phi(x^{(i)})^T \phi(x^{(j)})
-Therefore:
-kernel trick
-→ compute similarity in transformed space
-→ avoid explicit feature mapping
- 
-⸻
- 
-14. RBF Kernel
-The RBF kernel is:
-k(x^{(i)},x^{(j)}) = \exp \left( -\gamma \|x^{(i)}-x^{(j)}\|^2 \right)
-Interpretation:
-small distance
-→ high similarity
-→ kernel value close to 1
+\[
+(x_1, x_2)
+\rightarrow
+(x_1, x_2, x_1^2 + x_2^2)
+\]
 
-large distance
-→ low similarity
-→ kernel value close to 0
- 
-⸻
- 
-15. Gamma
-gamma controls how far the influence of each training sample extends.
-Small gamma:
-gamma ↓
-→ wider influence
-→ smoother boundary
-→ lower complexity
-Large gamma:
-gamma ↑
-→ narrower influence
-→ more local behavior
-→ more complex boundary
-→ higher overfitting risk
-Therefore:
-\gamma\uparrow \Rightarrow \text{model complexity}\uparrow
- 
-⸻
- 
-16. C vs. Gamma in RBF SVM
-C and gamma control different aspects of the model.
-C
-Controls the penalty for classification errors.
-large C
-→ punish errors strongly
-→ lower tolerance for misclassification
-Gamma
-Controls the influence range of each training sample.
-large gamma
-→ narrow influence
-→ more complex local boundary
- 
-⸻
- 
-17. RBF SVM in Scikit-Learn
+### Key Points
+
+- The original data may not be linearly separable.
+- The transformed data may become linearly separable.
+- SVM still learns a linear hyperplane in the higher-dimensional space.
+- The hyperplane becomes a nonlinear decision boundary in the original space.
+
+---
+
+## 3. Kernel Trick
+
+### Core Idea
+
+Explicitly computing the transformed features \(\phi(x)\) can be expensive.
+
+The kernel trick directly computes:
+
+\[
+k(x^{(i)}, x^{(j)})
+=
+\phi(x^{(i)})^T \phi(x^{(j)})
+\]
+
+### Key Points
+
+- Explicit feature mapping may be computationally expensive.
+- The kernel trick avoids explicitly computing \(\phi(x)\).
+- It directly computes the inner product in the higher-dimensional feature space.
+- This makes nonlinear SVM more efficient.
+
+---
+
+## 4. RBF Kernel
+
+### Core Idea
+
+The RBF kernel measures the similarity between two samples.
+
+\[
+k(x^{(i)}, x^{(j)})
+=
+\exp
+\left(
+-\gamma
+\|x^{(i)} - x^{(j)}\|^2
+\right)
+\]
+
+### Key Points
+
+- Small distance means high similarity.
+- Large distance means low similarity.
+- Similar samples have kernel values close to \(1\).
+- Dissimilar samples have kernel values close to \(0\).
+
+---
+
+## 5. Gamma
+
+### Core Idea
+
+The hyperparameter `gamma` controls the influence range of each training sample.
+
+### Key Points
+
+- Small `gamma` gives each sample a wider influence range.
+- Small `gamma` produces a smoother decision boundary.
+- Small `gamma` usually means lower model complexity.
+- Large `gamma` gives each sample a narrower influence range.
+- Large `gamma` produces a more complex decision boundary.
+- Large `gamma` increases the risk of overfitting.
+
+\[
+\gamma \uparrow
+\Rightarrow
+\text{model complexity} \uparrow
+\Rightarrow
+\text{overfitting risk} \uparrow
+\]
+
+---
+
+## 6. C
+
+### Core Idea
+
+The hyperparameter `C` controls the penalty for classification errors.
+
+### Key Points
+
+- Small `C` allows more classification errors.
+- Small `C` usually gives a simpler decision boundary.
+- Large `C` strongly penalizes classification errors.
+- Large `C` allows less tolerance for misclassification.
+- Large `C` may increase model complexity.
+
+---
+
+## 7. C vs. Gamma
+
+### Core Idea
+
+`C` and `gamma` both affect model complexity, but they control different things.
+
+### Key Points
+
+- `C` controls the penalty for classification errors.
+- `gamma` controls the influence range of each training sample.
+- Large `C` means stronger punishment for classification errors.
+- Large `gamma` means more local sample influence.
+- Large `gamma` can create a more complex decision boundary.
+
+---
+
+## 8. Scikit-Learn Example
+
+### Core Idea
+
+RBF Kernel SVM can be implemented using `SVC`.
+
+```python
 from sklearn.svm import SVC
 
 svm = SVC(
@@ -470,403 +1206,1548 @@ svm = SVC(
 )
 
 svm.fit(X_train_std, y_train)
-Important parameters:
-* kernel="rbf": use the RBF kernel.
-* gamma: control sample influence range.
-* C: control classification error penalty.
-Workflow:
-nonlinear data
-→ kernel similarity
-→ higher-dimensional feature space
-→ linear hyperplane
-→ nonlinear boundary in original space
+
+Key Points
+	•	kernel="rbf" selects the RBF kernel.
+	•	gamma controls the influence range of training samples.
+	•	C controls the penalty for classification errors.
+	•	fit() learns the decision boundary from the training data.
  
 ⸻
  
-18. Decision Tree
-A Decision Tree repeatedly splits the feature space.
-A typical split is:
-feature <= threshold
-The model learns:
-* which feature to split;
-* which threshold to use;
-* how the tree is structured.
-Tree structure:
-root
-→ internal nodes
-→ branches
-→ leaf
-→ prediction
-Unlike Logistic Regression or linear SVM, a Decision Tree does not mainly learn w and b.
+9. Kernel SVM Workflow
+Core Idea
+Kernel SVM solves nonlinear classification by working in a higher-dimensional feature space.
+Key Points
+	1.	Start with nonlinear data.
+	2.	Map the data into a higher-dimensional feature space.
+	3.	Learn a linear hyperplane in that space.
+	4.	Use the kernel trick to avoid explicit feature mapping.
+	5.	Obtain a nonlinear decision boundary in the original feature space.
  
 ⸻
  
-19. Impurity
+10. Key Takeaways
+Core Idea
+Kernel SVM extends linear SVM to nonlinear classification problems.
+Key Points
+	•	Linear SVM creates a linear decision boundary.
+	•	Kernel SVM can create nonlinear decision boundaries.
+	•	Feature mapping moves data into a higher-dimensional space.
+	•	SVM still learns a linear hyperplane in the transformed space.
+	•	The kernel trick avoids explicit feature mapping.
+	•	RBF kernel measures similarity between samples.
+	•	Small gamma produces smoother boundaries.
+	•	Large gamma produces more complex boundaries.
+	•	C controls classification error penalty.
+	•	gamma controls sample influence range.
+
+
+
+# Chapter 3 — Decision Trees, Random Forests, and KNN
+
+## 1. Decision Tree
+
+### Core Idea
+
+A Decision Tree makes predictions by repeatedly splitting the feature space.
+
+### Key Points
+
+- A typical split has the form: `feature <= threshold`.
+- The model learns:
+  - which feature to use;
+  - which threshold to use;
+  - how the tree is structured.
+- The model does not mainly learn `w` and `b`.
+- A sample moves from the root node through internal nodes until it reaches a leaf node.
+- The leaf node gives the final prediction.
+
+### Summary
+
+`feature + threshold -> split -> branch -> leaf -> prediction`
+
+---
+
+## 2. Tree Structure
+
+### Core Idea
+
+A Decision Tree consists of nodes and branches.
+
+### Key Points
+
+- Root node: the first split.
+- Internal node: an intermediate split.
+- Branch: the result of a split.
+- Leaf node: the final prediction.
+
+### Summary
+
+`root -> internal nodes -> leaf -> prediction`
+
+---
+
+## 3. Impurity
+
+### Core Idea
+
 Impurity measures how mixed the classes are inside a node.
-low impurity
-→ pure node
 
-high impurity
-→ mixed classes
-For a completely pure node:
-\text{Gini}=0
-\text{Entropy}=0
- 
-⸻
- 
-20. Entropy
-Entropy is:
-H = -\sum_i p_i\log_2 p_i
-For binary classification:
-100% / 0%
-→ entropy = 0
+### Key Points
 
-50% / 50%
-→ maximum entropy
-Entropy measures class uncertainty.
- 
-⸻
- 
-21. Gini Impurity
-Gini impurity is:
-G = 1-\sum_i p_i^2
-For binary classification:
-100% / 0%
-→ Gini = 0
+- Low impurity means the node is relatively pure.
+- High impurity means the classes are mixed.
+- A completely pure node contains samples from only one class.
+- For a pure node:
+  - `Gini = 0`;
+  - `Entropy = 0`.
 
-50% / 50%
-→ Gini = 0.5
-Gini and Entropy usually produce similar Decision Trees.
- 
-⸻
- 
-22. Information Gain
+### Summary
+
+`low impurity -> pure`
+
+`high impurity -> mixed`
+
+---
+
+## 4. Information Gain
+
+### Core Idea
+
 Information Gain measures how much a split reduces impurity.
-\text{Information Gain} = \text{parent impurity} - \text{weighted child impurity}
-Decision Trees prefer splits with larger Information Gain.
-better split
-→ larger impurity reduction
-→ purer child nodes
- 
-⸻
- 
-23. Tree Depth
-Tree depth controls model complexity.
-depth ↑
-→ more splits
-→ more complex decision regions
-→ closer fit to training data
-→ higher overfitting risk
-max_depth limits tree depth.
-from sklearn.tree import DecisionTreeClassifier
 
-tree = DecisionTreeClassifier(
-    criterion="gini",
-    max_depth=4,
-    random_state=1
-)
-Small max_depth:
-simpler model
-→ lower variance
-Large max_depth:
-more complex model
-→ higher overfitting risk
- 
-⸻
- 
-24. Decision Tree and Feature Scaling
-Decision Trees usually do not require feature scaling.
-They mainly depend on:
-ordering
-+
-threshold comparisons
-Example:
-x <= 5
-After scaling, the threshold value changes, but the ordering of samples usually remains the same.
-Therefore:
-Decision Tree
-→ ordering matters
-→ scaling usually unnecessary
- 
-⸻
- 
-25. Random Forest
+### Key Points
+
+- Information Gain compares impurity before and after a split.
+- The child-node impurity is weighted by the number of samples.
+- A larger Information Gain means the split produces purer child nodes.
+- A Decision Tree tries to choose the split with the largest Information Gain.
+
+### Formula
+
+`Information Gain = impurity before split - weighted impurity after split`
+
+### Summary
+
+`large Information Gain -> better split -> purer child nodes`
+
+---
+
+## 5. Entropy
+
+### Core Idea
+
+Entropy is one measure of node impurity.
+
+### Key Points
+
+- Entropy is low when a node is pure.
+- Entropy is high when classes are strongly mixed.
+- In binary classification:
+  - `100% / 0% -> entropy = 0`;
+  - `50% / 50% -> entropy is maximum`.
+
+### Formula
+
+`H = -Σ p_i log2(p_i)`
+
+### Summary
+
+`pure node -> low entropy`
+
+`mixed node -> high entropy`
+
+---
+
+## 6. Gini Impurity
+
+### Core Idea
+
+Gini impurity is another measure of node impurity.
+
+### Key Points
+
+- Gini impurity is `0` for a completely pure node.
+- In binary classification:
+  - `100% / 0% -> Gini = 0`;
+  - `50% / 50% -> Gini = 0.5`.
+- Gini and Entropy usually produce similar results in practice.
+
+### Formula
+
+`Gini = 1 - Σ p_i²`
+
+### Summary
+
+`Gini ≈ Entropy`
+
+`both measure node impurity`
+
+---
+
+## 7. Tree Depth
+
+### Core Idea
+
+Tree depth controls the complexity of a Decision Tree.
+
+### Key Points
+
+- A deeper tree creates more splits.
+- More splits create more detailed decision regions.
+- A deeper tree can fit the training data more closely.
+- A tree that is too deep may fit noise in the training data.
+- This increases the risk of overfitting.
+
+### Summary
+
+`depth ↑ -> complexity ↑ -> overfitting risk ↑`
+
+---
+
+## 8. max_depth
+
+### Core Idea
+
+`max_depth` limits how deep a Decision Tree can grow.
+
+### Key Points
+
+- `max_depth` is a hyperparameter.
+- A smaller value creates a simpler tree.
+- A larger value allows a more complex tree.
+- Limiting depth is one way to control overfitting.
+
+### Example
+
+`DecisionTreeClassifier(criterion="gini", max_depth=4, random_state=1)`
+
+### Summary
+
+`max_depth -> controls model complexity`
+
+---
+
+## 9. Nonlinear Decision Boundary
+
+### Core Idea
+
+A Decision Tree can create a nonlinear decision boundary using many simple splits.
+
+### Key Points
+
+- Each individual split is simple.
+- A split usually creates an axis-aligned boundary.
+- Multiple splits divide the feature space into rectangular regions.
+- Combining many rectangular regions creates a piecewise nonlinear boundary.
+
+### Summary
+
+`many simple splits -> rectangular regions -> nonlinear decision boundary`
+
+---
+
+## 10. Feature Scaling in Decision Trees
+
+### Core Idea
+
+Decision Trees usually do not require feature standardization.
+
+### Key Points
+
+- Decision Trees mainly compare values using thresholds.
+- The relative ordering of samples is more important than the absolute scale.
+- Scaling changes the numerical threshold but usually not the ordering of samples.
+- Therefore, standardization usually does not change the basic split structure.
+
+### Summary
+
+`Decision Tree -> ordering matters -> scaling usually unnecessary`
+
+---
+
+## 11. Random Forest
+
+### Core Idea
+
 A Random Forest combines many Decision Trees.
-many different trees
-→ combine predictions
-→ more stable model
-A single deep Decision Tree can have high variance.
-Random Forest reduces variance by making the trees different and combining them.
- 
-⸻
- 
-26. Bootstrap Sampling
-Each tree is trained on a bootstrap sample.
-Bootstrap sampling means:
-random sampling with replacement
-Example:
+
+### Key Points
+
+- A Random Forest is an ensemble model.
+- Each tree is intentionally made different.
+- Different trees make different errors.
+- Their predictions are combined.
+- The final model is usually more stable than a single deep Decision Tree.
+
+### Summary
+
+`many different Decision Trees -> combine predictions -> more robust model`
+
+---
+
+## 12. Why Random Forest Works
+
+### Core Idea
+
+Random Forest reduces the instability of individual Decision Trees.
+
+### Key Points
+
+- A deep Decision Tree can have high variance.
+- Small changes in the training data may produce very different trees.
+- Random Forest creates many different trees.
+- Voting or averaging reduces the effect of individual fluctuations.
+- The final ensemble usually has lower variance.
+
+### Summary
+
+`different trees -> different errors -> combine predictions -> variance ↓`
+
+---
+
+## 13. Bootstrap Sampling
+
+### Core Idea
+
+Each tree in a Random Forest is trained on a bootstrap sample.
+
+### Key Points
+
+- Bootstrap sampling means random sampling with replacement.
+- A sample can appear more than once.
+- Some original samples may not appear at all.
+
+### Example
+
 Original dataset:
-A B C D
+
+`A B C D`
+
 Possible bootstrap sample:
-A A C D
-Therefore:
-* some samples may appear multiple times;
-* some samples may not appear at all.
- 
-⸻
- 
-27. Random Feature Subsets
-At each node, Random Forest considers only a random subset of features.
-all features
-→ randomly choose subset
-→ find best split inside subset
-This makes different trees less correlated.
- 
-⸻
- 
-28. Random Forest Algorithm
-1. Draw bootstrap sample
-2. Grow Decision Tree
-3. At each node, choose random feature subset
-4. Find best split within subset
-5. Repeat for many trees
-6. Combine tree predictions
-For classification, predictions are usually combined using majority vote.
-Example:
-Tree 1 → 0
-Tree 2 → 1
-Tree 3 → 1
-Tree 4 → 1
-Tree 5 → 0
 
-Final prediction → 1
- 
-⸻
- 
-29. Random Forest in Scikit-Learn
-from sklearn.ensemble import RandomForestClassifier
+`A A C D`
 
-forest = RandomForestClassifier(
-    n_estimators=25,
-    random_state=1,
-    n_jobs=2
-)
-Important parameters:
-* n_estimators: number of Decision Trees.
-* random_state: reproducible randomness.
-* n_jobs: number of CPU cores used.
- 
-⸻
- 
-30. Parametric vs. Non-Parametric Models
-Parametric Models
+### Summary
+
+`bootstrap sampling = random sampling with replacement`
+
+---
+
+## 14. Random Feature Subsets
+
+### Core Idea
+
+Random Forest also introduces randomness through feature selection.
+
+### Key Points
+
+- At each node, only a random subset of features is considered.
+- The best split is selected only from that subset.
+- A new random subset can be selected at the next node.
+- This makes different trees less similar to each other.
+
+### Summary
+
+`random feature subset -> best split within subset -> more diverse trees`
+
+---
+
+## 15. Random Forest Algorithm
+
+### Core Idea
+
+Random Forest repeatedly builds randomized Decision Trees and combines their predictions.
+
+### Key Points
+
+1. Draw a bootstrap sample.
+2. Grow a Decision Tree.
+3. At each node, randomly select a subset of features.
+4. Choose the best split among those features.
+5. Repeat the process many times.
+6. Combine the predictions of all trees.
+
+### Summary
+
+`bootstrap sample -> random features -> Decision Tree -> repeat -> combine predictions`
+
+---
+
+## 16. Majority Vote
+
+### Core Idea
+
+For classification, Random Forest combines tree predictions using majority vote.
+
+### Key Points
+
+- Each tree predicts a class.
+- The class with the most votes becomes the final prediction.
+
+### Example
+
+`Tree 1 -> 0`
+
+`Tree 2 -> 1`
+
+`Tree 3 -> 1`
+
+`Tree 4 -> 1`
+
+`Tree 5 -> 0`
+
+Final prediction:
+
+`1`
+
+### Summary
+
+`majority vote -> final class prediction`
+
+---
+
+## 17. Random Forest Hyperparameters
+
+### Core Idea
+
+Random Forest behavior can be controlled using hyperparameters.
+
+### Key Points
+
+- `n_estimators`: number of Decision Trees.
+- `random_state`: controls reproducible randomness.
+- `n_jobs`: controls parallel computation.
+
+### Example
+
+`RandomForestClassifier(n_estimators=25, random_state=1, n_jobs=2)`
+
+### Summary
+
+`n_estimators=25 -> 25 Decision Trees`
+
+---
+
+## 18. Parametric Models
+
+### Core Idea
+
 Parametric models learn a fixed-size set of parameters.
-Examples:
-* Perceptron
-* Logistic Regression
-* Linear SVM
-Typical parameters:
-w,\ b
-parametric model
-→ fixed-size learned parameter set
-Non-Parametric Models
-Non-parametric models are not represented by a fixed-size parameter vector.
-Examples:
-* Decision Tree
-* Random Forest
-* KNN
-non-parametric model
-→ model complexity can grow with data
-Non-parametric does not mean “no hyperparameters.”
- 
-⸻
- 
-31. K-Nearest Neighbors
+
+### Key Points
+
+- The number of learned parameters does not directly grow with the number of training samples.
+- Typical learned parameters include `w` and `b`.
+
+### Examples
+
+- Logistic Regression
+- Linear SVM
+- Perceptron
+
+### Summary
+
+`parametric model -> fixed-size learned parameter set`
+
+---
+
+## 19. Non-Parametric Models
+
+### Core Idea
+
+Non-parametric models are not described by a fixed-size parameter vector.
+
+### Key Points
+
+- Model complexity can grow with the training data.
+- Non-parametric does not mean that the model has no hyperparameters.
+
+### Examples
+
+- Decision Tree
+- Random Forest
+- KNN
+
+### Summary
+
+`non-parametric model -> no fixed-size parameter vector`
+
+---
+
+## 20. K-Nearest Neighbors
+
+### Core Idea
+
 KNN predicts a new sample using nearby training samples.
-It does not learn a fixed parameter vector such as w and b.
-Prediction workflow:
-new sample
-→ calculate distances
-→ find k nearest training samples
-→ majority vote
-→ predicted class
- 
-⸻
- 
-32. Lazy Learning
-KNN is called a lazy learner.
-Training:
-little computation
-→ mainly store training data
-Prediction:
-calculate distances
-→ find neighbors
-→ vote
-Therefore, most computation happens during prediction.
- 
-⸻
- 
-33. Choosing k
-Small k:
-k ↓
-→ more flexible boundary
-→ more sensitive to noise
-→ higher complexity
-→ higher overfitting risk
-Large k:
-k ↑
-→ smoother boundary
-→ less sensitive to individual samples
-→ lower complexity
-→ possible underfitting
- 
-⸻
- 
-34. Distance Metrics
-KNN commonly uses Minkowski distance.
-p=2:
-Euclidean distance
-p=1:
-Manhattan distance
-Example:
-from sklearn.neighbors import KNeighborsClassifier
 
-knn = KNeighborsClassifier(
-    n_neighbors=5,
-    p=2,
-    metric="minkowski"
-)
- 
-⸻
- 
-35. Feature Scaling in KNN
-Feature scaling is very important for KNN because KNN directly uses distance.
-Example:
-height: 150–190
-income: 0–10,000,000
+### Key Points
+
+- KNN mainly stores the training data.
+- It does not learn a fixed set of parameters such as `w` and `b`.
+- Most computation happens during prediction.
+- Prediction depends on distance between samples.
+
+### Summary
+
+`new sample -> distance -> nearest neighbors -> vote -> prediction`
+
+---
+
+## 21. Lazy Learning
+
+### Core Idea
+
+KNN is called a lazy learner because little computation happens during training.
+
+### Key Points
+
+- Training mainly stores the training data.
+- There is no iterative parameter optimization.
+- Prediction requires distance calculations.
+- Prediction can therefore be computationally expensive.
+
+### Summary
+
+`training -> little work`
+
+`prediction -> most work`
+
+---
+
+## 22. KNN Prediction
+
+### Core Idea
+
+KNN classification uses the labels of the nearest training samples.
+
+### Key Points
+
+1. Choose `k`.
+2. Choose a distance metric.
+3. Calculate distances from the new sample to training samples.
+4. Find the `k` nearest training samples.
+5. Use majority vote to predict the class.
+
+### Summary
+
+`distance -> k nearest neighbors -> majority vote`
+
+---
+
+## 23. Choosing k
+
+### Core Idea
+
+The value of `k` controls the complexity of the KNN decision boundary.
+
+### Key Points
+
+- Small `k`:
+  - more flexible;
+  - more sensitive to noise;
+  - more complex decision boundary;
+  - higher overfitting risk.
+- Large `k`:
+  - smoother decision boundary;
+  - less sensitive to individual samples;
+  - higher underfitting risk if too large.
+
+### Summary
+
+`k ↓ -> complexity ↑ -> overfitting risk ↑`
+
+`k ↑ -> smoother boundary -> underfitting risk ↑`
+
+---
+
+## 24. Distance Metric
+
+### Core Idea
+
+KNN uses a distance metric to measure similarity between samples.
+
+### Key Points
+
+- Minkowski distance is a general distance metric.
+- `p=2` gives Euclidean distance.
+- `p=1` gives Manhattan distance.
+
+### Example
+
+`KNeighborsClassifier(n_neighbors=5, p=2, metric="minkowski")`
+
+### Summary
+
+`p=2 -> Euclidean distance`
+
+`p=1 -> Manhattan distance`
+
+---
+
+## 25. Feature Scaling in KNN
+
+### Core Idea
+
+KNN usually requires feature scaling because prediction depends directly on distance.
+
+### Key Points
+
+- Features with larger numerical scales can dominate the distance.
+- Features with smaller numerical scales may contribute very little.
+- Standardization makes feature scales more comparable.
+
+### Example
+
+`height: 150–190`
+
+`income: 0–10,000,000`
+
 Without scaling:
-income dominates the distance
-Standardization makes feature scales more comparable.
-Therefore:
-KNN
-→ distance matters
-→ scaling is very important
+
+`income dominates the distance`
+
+### Summary
+
+`KNN -> distance matters -> scaling is very important`
+
+---
+
+## 26. Decision Tree vs. KNN Scaling
+
+### Core Idea
+
+Decision Trees and KNN react differently to feature scale.
+
+### Key Points
+
+- Decision Tree:
+  - mainly uses ordering and thresholds;
+  - scaling is usually unnecessary.
+- KNN:
+  - directly uses distances;
+  - scaling is usually important.
+
+### Summary
+
+`Decision Tree -> ordering matters`
+
+`KNN -> distance matters`
+
+---
+
+## 27. Curse of Dimensionality
+
+### Core Idea
+
+KNN becomes more difficult in very high-dimensional spaces.
+
+### Key Points
+
+- More dimensions create a much larger feature space.
+- Training samples become increasingly sparse.
+- Even the nearest neighbors may be relatively far away.
+- Distance becomes less informative.
+- KNN performance may decrease.
+
+### Summary
+
+`dimensions ↑ -> samples become sparse -> distance becomes less useful`
+
+---
+
+## 28. Model Comparison
+
+| Model | Main Learned Information | Prediction Method | Feature Scaling |
+|---|---|---|---|
+| Logistic Regression | `w, b` | Sigmoid probability | Usually important |
+| Linear SVM | `w, b` | Maximum-margin boundary | Usually important |
+| Decision Tree | Features, thresholds, tree structure | Follow tree splits | Usually unnecessary |
+| Random Forest | Many Decision Trees | Majority vote | Usually unnecessary |
+| KNN | Mainly stores training samples | Distance + neighbors + vote | Very important |
+
+---
+
+## 29. Final Summary
+
+### Decision Tree
+
+`feature + threshold -> split -> Information Gain -> repeat -> leaf -> prediction`
+
+### Random Forest
+
+`bootstrap samples -> random feature subsets -> many trees -> majority vote -> lower variance`
+
+### KNN
+
+`store training data -> calculate distance -> find k nearest neighbors -> majority vote`
+
+### Complexity
+
+`Decision Tree: depth ↑ -> complexity ↑`
+
+`KNN: k ↓ -> complexity ↑`
+
+### Feature Scaling
+
+`Decision Tree -> usually unnecessary`
+
+`KNN -> very important` # Kernel SVM
+
+## 1. Why Kernel SVM?
+
+### Core Idea
+
+A linear SVM can only create a linear decision boundary.
+
+\[
+w^T x + b = 0
+\]
+
+Some datasets, such as XOR data, are not linearly separable in the original feature space.
+
+### Key Points
+
+- Linear SVM learns a linear decision boundary.
+- XOR data cannot be separated well by a straight line.
+- Kernel SVM is used for nonlinear classification problems.
+
+---
+
+## 2. Feature Mapping
+
+### Core Idea
+
+Kernel methods map the original data into a higher-dimensional feature space.
+
+\[
+x \rightarrow \phi(x)
+\]
+
+Example:
+
+\[
+(x_1, x_2)
+\rightarrow
+(x_1, x_2, x_1^2 + x_2^2)
+\]
+
+### Key Points
+
+- The original data may not be linearly separable.
+- The transformed data may become linearly separable.
+- SVM still learns a linear hyperplane in the higher-dimensional space.
+- The hyperplane becomes a nonlinear decision boundary in the original space.
+
+---
+
+## 3. Kernel Trick
+
+### Core Idea
+
+Explicitly computing the transformed features \(\phi(x)\) can be expensive.
+
+The kernel trick directly computes:
+
+\[
+k(x^{(i)}, x^{(j)})
+=
+\phi(x^{(i)})^T \phi(x^{(j)})
+\]
+
+### Key Points
+
+- Explicit feature mapping may be computationally expensive.
+- The kernel trick avoids explicitly computing \(\phi(x)\).
+- It directly computes the inner product in the higher-dimensional feature space.
+- This makes nonlinear SVM more efficient.
+
+---
+
+## 4. RBF Kernel
+
+### Core Idea
+
+The RBF kernel measures the similarity between two samples.
+
+\[
+k(x^{(i)}, x^{(j)})
+=
+\exp
+\left(
+-\gamma
+\|x^{(i)} - x^{(j)}\|^2
+\right)
+\]
+
+### Key Points
+
+- Small distance means high similarity.
+- Large distance means low similarity.
+- Similar samples have kernel values close to \(1\).
+- Dissimilar samples have kernel values close to \(0\).
+
+---
+
+## 5. Gamma
+
+### Core Idea
+
+The hyperparameter `gamma` controls the influence range of each training sample.
+
+### Key Points
+
+- Small `gamma` gives each sample a wider influence range.
+- Small `gamma` produces a smoother decision boundary.
+- Small `gamma` usually means lower model complexity.
+- Large `gamma` gives each sample a narrower influence range.
+- Large `gamma` produces a more complex decision boundary.
+- Large `gamma` increases the risk of overfitting.
+
+\[
+\gamma \uparrow
+\Rightarrow
+\text{model complexity} \uparrow
+\Rightarrow
+\text{overfitting risk} \uparrow
+\]
+
+---
+
+## 6. C
+
+### Core Idea
+
+The hyperparameter `C` controls the penalty for classification errors.
+
+### Key Points
+
+- Small `C` allows more classification errors.
+- Small `C` usually gives a simpler decision boundary.
+- Large `C` strongly penalizes classification errors.
+- Large `C` allows less tolerance for misclassification.
+- Large `C` may increase model complexity.
+
+---
+
+## 7. C vs. Gamma
+
+### Core Idea
+
+`C` and `gamma` both affect model complexity, but they control different things.
+
+### Key Points
+
+- `C` controls the penalty for classification errors.
+- `gamma` controls the influence range of each training sample.
+- Large `C` means stronger punishment for classification errors.
+- Large `gamma` means more local sample influence.
+- Large `gamma` can create a more complex decision boundary.
+
+---
+
+## 8. Scikit-Learn Example
+
+### Core Idea
+
+RBF Kernel SVM can be implemented using `SVC`.
+
+```python
+from sklearn.svm import SVC
+
+svm = SVC(
+    kernel="rbf",
+    gamma=0.2,
+    C=1.0
+)
+
+svm.fit(X_train_std, y_train)
+
+Key Points
+* kernel="rbf" selects the RBF kernel.
+* gamma controls the influence range of training samples.
+* C controls the penalty for classification errors.
+* fit() learns the decision boundary from the training data.
  
 ⸻
  
-36. Curse of Dimensionality
-KNN becomes less effective in very high-dimensional spaces.
-dimensions ↑
-→ feature space becomes larger
-→ training samples become sparse
-→ nearest neighbors become farther away
-→ distance becomes less informative
-This is called the curse of dimensionality.
+9. Kernel SVM Workflow
+Core Idea
+Kernel SVM solves nonlinear classification by working in a higher-dimensional feature space.
+Key Points
+1. Start with nonlinear data.
+2. Map the data into a higher-dimensional feature space.
+3. Learn a linear hyperplane in that space.
+4. Use the kernel trick to avoid explicit feature mapping.
+5. Obtain a nonlinear decision boundary in the original feature space.
  
 ⸻
  
-37. Model Comparison
-Model	Main Learned Information	Main Idea	Scaling
-Perceptron	w,b	Linear classification	Usually important
-Logistic Regression	w,b	Probability + logistic loss	Usually important
-Linear SVM	w,b	Maximum-margin boundary	Usually important
-RBF SVM	Support-vector relationships	Nonlinear kernel boundary	Very important
-Decision Tree	Features, thresholds, tree structure	Recursive splitting	Usually unnecessary
-Random Forest	Many Decision Trees	Ensemble voting	Usually unnecessary
-KNN	Training samples	Distance + neighbor voting	Very important
- 
-⸻
- 
-38. Model Complexity
-Important relationships:
-Regularization:
-C ↓
-→ stronger regularization
-→ simpler model
-RBF SVM:
-gamma ↑
-→ more complex boundary
-Decision Tree:
-max_depth ↑
-→ model complexity ↑
-KNN:
-k ↓
-→ model complexity ↑
- 
-⸻
- 
-39. Feature Scaling Summary
-Logistic Regression
-→ scaling usually important
+10. Key Takeaways
+Core Idea
+Kernel SVM extends linear SVM to nonlinear classification problems.
+Key Points
+* Linear SVM creates a linear decision boundary.
+* Kernel SVM can create nonlinear decision boundaries.
+* Feature mapping moves data into a higher-dimensional space.
+* SVM still learns a linear hyperplane in the transformed space.
+* The kernel trick avoids explicit feature mapping.
+* RBF kernel measures similarity between samples.
+* Small gamma produces smoother boundaries.
+* Large gamma produces more complex boundaries.
+* C controls classification error penalty.
+* gamma controls sample influence range.
 
-SVM
-→ scaling important
 
-RBF SVM
-→ scaling especially important because distance matters
 
-Decision Tree
-→ scaling usually unnecessary
+# Chapter 3 — Decision Trees, Random Forests, and KNN
 
-Random Forest
-→ scaling usually unnecessary
+## 1. Decision Tree
 
-KNN
-→ scaling very important because distance matters
- 
-⸻
- 
-40. Chapter 3 Core Takeaways
-Scikit-Learn Workflow
-split
-→ preprocess training data
-→ apply same transformation to test data
-→ fit model
-→ predict
-→ evaluate
-Logistic Regression
-X
-→ z = Xw + b
-→ sigmoid
-→ probability
-→ logistic loss
-→ learn w and b
-Linear SVM
-linear decision boundary
-→ support vectors
-→ maximize margin
-→ C controls error penalty
-Kernel SVM
-nonlinear data
-→ kernel trick
-→ higher-dimensional feature space
-→ linear hyperplane there
-→ nonlinear boundary in original space
-Decision Tree
-feature + threshold
-→ reduce impurity
-→ recursive splits
-→ leaf
-→ prediction
-Random Forest
-bootstrap samples
-→ random feature subsets
-→ many Decision Trees
-→ majority vote
-→ lower variance
-KNN
-store training data
-→ calculate distance
-→ find k nearest neighbors
-→ majority vote
-Generalization
-too simple
-→ underfitting
-→ high bias
+### Core Idea
 
-too complex
-→ overfitting
-→ high variance
+A Decision Tree makes predictions by repeatedly splitting the feature space.
 
-appropriate complexity
-→ good generalization
+### Key Points
+
+- A typical split has the form: `feature <= threshold`.
+- The model learns:
+  - which feature to use;
+  - which threshold to use;
+  - how the tree is structured.
+- The model does not mainly learn `w` and `b`.
+- A sample moves from the root node through internal nodes until it reaches a leaf node.
+- The leaf node gives the final prediction.
+
+### Summary
+
+`feature + threshold -> split -> branch -> leaf -> prediction`
+
+---
+
+## 2. Tree Structure
+
+### Core Idea
+
+A Decision Tree consists of nodes and branches.
+
+### Key Points
+
+- Root node: the first split.
+- Internal node: an intermediate split.
+- Branch: the result of a split.
+- Leaf node: the final prediction.
+
+### Summary
+
+`root -> internal nodes -> leaf -> prediction`
+
+---
+
+## 3. Impurity
+
+### Core Idea
+
+Impurity measures how mixed the classes are inside a node.
+
+### Key Points
+
+- Low impurity means the node is relatively pure.
+- High impurity means the classes are mixed.
+- A completely pure node contains samples from only one class.
+- For a pure node:
+  - `Gini = 0`;
+  - `Entropy = 0`.
+
+### Summary
+
+`low impurity -> pure`
+
+`high impurity -> mixed`
+
+---
+
+## 4. Information Gain
+
+### Core Idea
+
+Information Gain measures how much a split reduces impurity.
+
+### Key Points
+
+- Information Gain compares impurity before and after a split.
+- The child-node impurity is weighted by the number of samples.
+- A larger Information Gain means the split produces purer child nodes.
+- A Decision Tree tries to choose the split with the largest Information Gain.
+
+### Formula
+
+`Information Gain = impurity before split - weighted impurity after split`
+
+### Summary
+
+`large Information Gain -> better split -> purer child nodes`
+
+---
+
+## 5. Entropy
+
+### Core Idea
+
+Entropy is one measure of node impurity.
+
+### Key Points
+
+- Entropy is low when a node is pure.
+- Entropy is high when classes are strongly mixed.
+- In binary classification:
+  - `100% / 0% -> entropy = 0`;
+  - `50% / 50% -> entropy is maximum`.
+
+### Formula
+
+`H = -Σ p_i log2(p_i)`
+
+### Summary
+
+`pure node -> low entropy`
+
+`mixed node -> high entropy`
+
+---
+
+## 6. Gini Impurity
+
+### Core Idea
+
+Gini impurity is another measure of node impurity.
+
+### Key Points
+
+- Gini impurity is `0` for a completely pure node.
+- In binary classification:
+  - `100% / 0% -> Gini = 0`;
+  - `50% / 50% -> Gini = 0.5`.
+- Gini and Entropy usually produce similar results in practice.
+
+### Formula
+
+`Gini = 1 - Σ p_i²`
+
+### Summary
+
+`Gini ≈ Entropy`
+
+`both measure node impurity`
+
+---
+
+## 7. Tree Depth
+
+### Core Idea
+
+Tree depth controls the complexity of a Decision Tree.
+
+### Key Points
+
+- A deeper tree creates more splits.
+- More splits create more detailed decision regions.
+- A deeper tree can fit the training data more closely.
+- A tree that is too deep may fit noise in the training data.
+- This increases the risk of overfitting.
+
+### Summary
+
+`depth ↑ -> complexity ↑ -> overfitting risk ↑`
+
+---
+
+## 8. max_depth
+
+### Core Idea
+
+`max_depth` limits how deep a Decision Tree can grow.
+
+### Key Points
+
+- `max_depth` is a hyperparameter.
+- A smaller value creates a simpler tree.
+- A larger value allows a more complex tree.
+- Limiting depth is one way to control overfitting.
+
+### Example
+
+`DecisionTreeClassifier(criterion="gini", max_depth=4, random_state=1)`
+
+### Summary
+
+`max_depth -> controls model complexity`
+
+---
+
+## 9. Nonlinear Decision Boundary
+
+### Core Idea
+
+A Decision Tree can create a nonlinear decision boundary using many simple splits.
+
+### Key Points
+
+- Each individual split is simple.
+- A split usually creates an axis-aligned boundary.
+- Multiple splits divide the feature space into rectangular regions.
+- Combining many rectangular regions creates a piecewise nonlinear boundary.
+
+### Summary
+
+`many simple splits -> rectangular regions -> nonlinear decision boundary`
+
+---
+
+## 10. Feature Scaling in Decision Trees
+
+### Core Idea
+
+Decision Trees usually do not require feature standardization.
+
+### Key Points
+
+- Decision Trees mainly compare values using thresholds.
+- The relative ordering of samples is more important than the absolute scale.
+- Scaling changes the numerical threshold but usually not the ordering of samples.
+- Therefore, standardization usually does not change the basic split structure.
+
+### Summary
+
+`Decision Tree -> ordering matters -> scaling usually unnecessary`
+
+---
+
+## 11. Random Forest
+
+### Core Idea
+
+A Random Forest combines many Decision Trees.
+
+### Key Points
+
+- A Random Forest is an ensemble model.
+- Each tree is intentionally made different.
+- Different trees make different errors.
+- Their predictions are combined.
+- The final model is usually more stable than a single deep Decision Tree.
+
+### Summary
+
+`many different Decision Trees -> combine predictions -> more robust model`
+
+---
+
+## 12. Why Random Forest Works
+
+### Core Idea
+
+Random Forest reduces the instability of individual Decision Trees.
+
+### Key Points
+
+- A deep Decision Tree can have high variance.
+- Small changes in the training data may produce very different trees.
+- Random Forest creates many different trees.
+- Voting or averaging reduces the effect of individual fluctuations.
+- The final ensemble usually has lower variance.
+
+### Summary
+
+`different trees -> different errors -> combine predictions -> variance ↓`
+
+---
+
+## 13. Bootstrap Sampling
+
+### Core Idea
+
+Each tree in a Random Forest is trained on a bootstrap sample.
+
+### Key Points
+
+- Bootstrap sampling means random sampling with replacement.
+- A sample can appear more than once.
+- Some original samples may not appear at all.
+
+### Example
+
+Original dataset:
+
+`A B C D`
+
+Possible bootstrap sample:
+
+`A A C D`
+
+### Summary
+
+`bootstrap sampling = random sampling with replacement`
+
+---
+
+## 14. Random Feature Subsets
+
+### Core Idea
+
+Random Forest also introduces randomness through feature selection.
+
+### Key Points
+
+- At each node, only a random subset of features is considered.
+- The best split is selected only from that subset.
+- A new random subset can be selected at the next node.
+- This makes different trees less similar to each other.
+
+### Summary
+
+`random feature subset -> best split within subset -> more diverse trees`
+
+---
+
+## 15. Random Forest Algorithm
+
+### Core Idea
+
+Random Forest repeatedly builds randomized Decision Trees and combines their predictions.
+
+### Key Points
+
+1. Draw a bootstrap sample.
+2. Grow a Decision Tree.
+3. At each node, randomly select a subset of features.
+4. Choose the best split among those features.
+5. Repeat the process many times.
+6. Combine the predictions of all trees.
+
+### Summary
+
+`bootstrap sample -> random features -> Decision Tree -> repeat -> combine predictions`
+
+---
+
+## 16. Majority Vote
+
+### Core Idea
+
+For classification, Random Forest combines tree predictions using majority vote.
+
+### Key Points
+
+- Each tree predicts a class.
+- The class with the most votes becomes the final prediction.
+
+### Example
+
+`Tree 1 -> 0`
+
+`Tree 2 -> 1`
+
+`Tree 3 -> 1`
+
+`Tree 4 -> 1`
+
+`Tree 5 -> 0`
+
+Final prediction:
+
+`1`
+
+### Summary
+
+`majority vote -> final class prediction`
+
+---
+
+## 17. Random Forest Hyperparameters
+
+### Core Idea
+
+Random Forest behavior can be controlled using hyperparameters.
+
+### Key Points
+
+- `n_estimators`: number of Decision Trees.
+- `random_state`: controls reproducible randomness.
+- `n_jobs`: controls parallel computation.
+
+### Example
+
+`RandomForestClassifier(n_estimators=25, random_state=1, n_jobs=2)`
+
+### Summary
+
+`n_estimators=25 -> 25 Decision Trees`
+
+---
+
+## 18. Parametric Models
+
+### Core Idea
+
+Parametric models learn a fixed-size set of parameters.
+
+### Key Points
+
+- The number of learned parameters does not directly grow with the number of training samples.
+- Typical learned parameters include `w` and `b`.
+
+### Examples
+
+- Logistic Regression
+- Linear SVM
+- Perceptron
+
+### Summary
+
+`parametric model -> fixed-size learned parameter set`
+
+---
+
+## 19. Non-Parametric Models
+
+### Core Idea
+
+Non-parametric models are not described by a fixed-size parameter vector.
+
+### Key Points
+
+- Model complexity can grow with the training data.
+- Non-parametric does not mean that the model has no hyperparameters.
+
+### Examples
+
+- Decision Tree
+- Random Forest
+- KNN
+
+### Summary
+
+`non-parametric model -> no fixed-size parameter vector`
+
+---
+
+## 20. K-Nearest Neighbors
+
+### Core Idea
+
+KNN predicts a new sample using nearby training samples.
+
+### Key Points
+
+- KNN mainly stores the training data.
+- It does not learn a fixed set of parameters such as `w` and `b`.
+- Most computation happens during prediction.
+- Prediction depends on distance between samples.
+
+### Summary
+
+`new sample -> distance -> nearest neighbors -> vote -> prediction`
+
+---
+
+## 21. Lazy Learning
+
+### Core Idea
+
+KNN is called a lazy learner because little computation happens during training.
+
+### Key Points
+
+- Training mainly stores the training data.
+- There is no iterative parameter optimization.
+- Prediction requires distance calculations.
+- Prediction can therefore be computationally expensive.
+
+### Summary
+
+`training -> little work`
+
+`prediction -> most work`
+
+---
+
+## 22. KNN Prediction
+
+### Core Idea
+
+KNN classification uses the labels of the nearest training samples.
+
+### Key Points
+
+1. Choose `k`.
+2. Choose a distance metric.
+3. Calculate distances from the new sample to training samples.
+4. Find the `k` nearest training samples.
+5. Use majority vote to predict the class.
+
+### Summary
+
+`distance -> k nearest neighbors -> majority vote`
+
+---
+
+## 23. Choosing k
+
+### Core Idea
+
+The value of `k` controls the complexity of the KNN decision boundary.
+
+### Key Points
+
+- Small `k`:
+  - more flexible;
+  - more sensitive to noise;
+  - more complex decision boundary;
+  - higher overfitting risk.
+- Large `k`:
+  - smoother decision boundary;
+  - less sensitive to individual samples;
+  - higher underfitting risk if too large.
+
+### Summary
+
+`k ↓ -> complexity ↑ -> overfitting risk ↑`
+
+`k ↑ -> smoother boundary -> underfitting risk ↑`
+
+---
+
+## 24. Distance Metric
+
+### Core Idea
+
+KNN uses a distance metric to measure similarity between samples.
+
+### Key Points
+
+- Minkowski distance is a general distance metric.
+- `p=2` gives Euclidean distance.
+- `p=1` gives Manhattan distance.
+
+### Example
+
+`KNeighborsClassifier(n_neighbors=5, p=2, metric="minkowski")`
+
+### Summary
+
+`p=2 -> Euclidean distance`
+
+`p=1 -> Manhattan distance`
+
+---
+
+## 25. Feature Scaling in KNN
+
+### Core Idea
+
+KNN usually requires feature scaling because prediction depends directly on distance.
+
+### Key Points
+
+- Features with larger numerical scales can dominate the distance.
+- Features with smaller numerical scales may contribute very little.
+- Standardization makes feature scales more comparable.
+
+### Example
+
+`height: 150–190`
+
+`income: 0–10,000,000`
+
+Without scaling:
+
+`income dominates the distance`
+
+### Summary
+
+`KNN -> distance matters -> scaling is very important`
+
+---
+
+## 26. Decision Tree vs. KNN Scaling
+
+### Core Idea
+
+Decision Trees and KNN react differently to feature scale.
+
+### Key Points
+
+- Decision Tree:
+  - mainly uses ordering and thresholds;
+  - scaling is usually unnecessary.
+- KNN:
+  - directly uses distances;
+  - scaling is usually important.
+
+### Summary
+
+`Decision Tree -> ordering matters`
+
+`KNN -> distance matters`
+
+---
+
+## 27. Curse of Dimensionality
+
+### Core Idea
+
+KNN becomes more difficult in very high-dimensional spaces.
+
+### Key Points
+
+- More dimensions create a much larger feature space.
+- Training samples become increasingly sparse.
+- Even the nearest neighbors may be relatively far away.
+- Distance becomes less informative.
+- KNN performance may decrease.
+
+### Summary
+
+`dimensions ↑ -> samples become sparse -> distance becomes less useful`
+
+---
+
+## 28. Model Comparison
+
+| Model | Main Learned Information | Prediction Method | Feature Scaling |
+|---|---|---|---|
+| Logistic Regression | `w, b` | Sigmoid probability | Usually important |
+| Linear SVM | `w, b` | Maximum-margin boundary | Usually important |
+| Decision Tree | Features, thresholds, tree structure | Follow tree splits | Usually unnecessary |
+| Random Forest | Many Decision Trees | Majority vote | Usually unnecessary |
+| KNN | Mainly stores training samples | Distance + neighbors + vote | Very important |
+
+---
+
+## 29. Final Summary
+
+### Decision Tree
+
+`feature + threshold -> split -> Information Gain -> repeat -> leaf -> prediction`
+
+### Random Forest
+
+`bootstrap samples -> random feature subsets -> many trees -> majority vote -> lower variance`
+
+### KNN
+
+`store training data -> calculate distance -> find k nearest neighbors -> majority vote`
+
+### Complexity
+
+`Decision Tree: depth ↑ -> complexity ↑`
+
+`KNN: k ↓ -> complexity ↑`
+
+### Feature Scaling
+
+`Decision Tree -> usually unnecessary`
+
+`KNN -> very important`
