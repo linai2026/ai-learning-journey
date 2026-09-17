@@ -1,4 +1,5 @@
 class Solution:
+    # time O(n), extra space O(1) 
     def maxProfit(self, prices: List[int]) -> int:
         
         min_price = float('inf')
@@ -11,6 +12,11 @@ class Solution:
                 max_profit = price - min_price  
 
         return max_profit
+
+
+
+
+
 
 
 
