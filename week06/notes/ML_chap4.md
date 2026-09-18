@@ -1012,3 +1012,696 @@ Example:
 
     passthrough
     -> Leave columns unchanged
+
+
+---
+
+# Data Preprocessing and Regularization
+
+## 1. Train-Test Split
+
+A dataset should be divided into separate training and test sets.
+
+- **Training set**: used to learn model parameters.
+- **Test set**: used to evaluate performance on unseen data.
+
+```python
+from sklearn.model_selection import train_test_split
+
+X_train, X_test, y_train, y_test = train_test_split(
+    X,
+    y,
+    test_size=0.3,
+    random_state=0,
+    stratify=y
+)
+```
+
+### Important Parameters
+
+- `test_size=0.3`
+  - 70% training data
+  - 30% test data
+
+- `random_state=0`
+  - Makes the random split reproducible.
+
+- `stratify=y`
+  - Preserves approximately the same class proportions in the training and test sets.
+
+### Train-Test Ratio
+
+There is no single best train-test ratio.
+
+Common choices include:
+
+- 60/40
+- 70/30
+- 80/20
+
+For very large datasets, a larger proportion can often be used for training while still keeping enough test samples for reliable evaluation.
+
+---
+
+## 2. Feature Scaling
+
+Features can have very different numerical scales.
+
+For example:
+
+```text
+Feature 1: 1–10
+Feature 2: 1–100,000
+```
+
+Without scaling, features with larger numerical values may dominate distance calculations or optimization.
+
+Scaling is especially important for algorithms such as:
+
+- Logistic Regression
+- SVM
+- KNN
+- Gradient Descent-based models
+
+Decision Trees and Random Forests usually do not require feature scaling because their decisions are based mainly on feature ordering and split thresholds.
+
+---
+
+## 3. Min-Max Normalization
+
+Min-max scaling usually transforms a feature into the range `[0, 1]`.
+
+### Formula
+
+$begin:math:display$
+x\_\{norm\} \= \\frac\{x\-x\_\{min\}\}\{x\_\{max\}\-x\_\{min\}\}
+$end:math:display$
+
+### Example
+
+```text
+Original:
+0  1  2  3  4  5
+
+Min-Max:
+0  0.2  0.4  0.6  0.8  1
+```
+
+### Scikit-Learn
+
+```python
+from sklearn.preprocessing import MinMaxScaler
+
+mms = MinMaxScaler()
+
+X_train_norm = mms.fit_transform(X_train)
+X_test_norm = mms.transform(X_test)
+```
+
+Min-max scaling depends on the minimum and maximum values, so it can be sensitive to outliers.
+
+---
+
+## 4. Standardization
+
+Standardization centers and scales each feature.
+
+### Formula
+
+$begin:math:display$
+x\_\{std\} \= \\frac\{x\-\\mu\}\{\\sigma\}
+$end:math:display$
+
+where:
+
+- $begin:math:text$\\mu$end:math:text$ = mean of the feature
+- $begin:math:text$\\sigma$end:math:text$ = standard deviation of the feature
+
+After standardization:
+
+```text
+mean ≈ 0
+standard deviation ≈ 1
+```
+
+### Important
+
+Standardization does **not** make the data normally distributed.
+
+```text
+Skewed distribution
+        ↓
+StandardScaler
+        ↓
+Mean ≈ 0, Std ≈ 1
+        ↓
+Still skewed
+```
+
+It changes the center and scale, not the basic shape of the distribution.
+
+---
+
+## 5. StandardScaler in Scikit-Learn
+
+```python
+from sklearn.preprocessing import StandardScaler
+
+sc = StandardScaler()
+
+X_train_std = sc.fit_transform(X_train)
+X_test_std = sc.transform(X_test)
+```
+
+### What Does `fit()` Learn?
+
+```python
+sc.fit(X_train)
+```
+
+learns the training-set statistics for each feature:
+
+```text
+training mean
+training standard deviation
+```
+
+These same statistics must be used to transform both the training and test sets.
+
+```text
+X_train
+→ use μ_train and σ_train
+
+X_test
+→ use μ_train and σ_train
+
+future unseen data
+→ use μ_train and σ_train
+```
+
+---
+
+## 6. Avoiding Data Leakage
+
+The scaler should be fitted only on the training data.
+
+Correct:
+
+```python
+sc.fit(X_train)
+
+X_train_std = sc.transform(X_train)
+X_test_std = sc.transform(X_test)
+```
+
+Or:
+
+```python
+X_train_std = sc.fit_transform(X_train)
+X_test_std = sc.transform(X_test)
+```
+
+Incorrect:
+
+```python
+X_train_std = sc.fit_transform(X_train)
+X_test_std = sc.fit_transform(X_test)
+```
+
+The test set must not be used to learn preprocessing parameters.
+
+### General Rule
+
+```text
+Anything that learns information from data
+should normally learn it from the training data only.
+```
+
+Examples:
+
+```text
+SimpleImputer.fit()
+→ learns replacement statistics
+
+StandardScaler.fit()
+→ learns mean and standard deviation
+
+Model.fit()
+→ learns model parameters
+```
+
+---
+
+## 7. RobustScaler
+
+`RobustScaler` can be useful when a dataset contains significant outliers.
+
+StandardScaler mainly uses:
+
+```text
+mean + standard deviation
+```
+
+MinMaxScaler uses:
+
+```text
+minimum + maximum
+```
+
+RobustScaler mainly uses:
+
+```text
+median + quartiles
+```
+
+Therefore:
+
+```text
+many outliers
+→ mean/min/max may be strongly affected
+→ RobustScaler can be more robust
+```
+
+---
+
+## 8. Selecting Meaningful Features
+
+Overfitting often occurs when a model becomes too complex and fits the training data too closely.
+
+```text
+High training performance
++
+Poor test performance
+→ possible overfitting
+```
+
+Possible ways to reduce overfitting include:
+
+- Collect more training data.
+- Apply regularization.
+- Choose a simpler model.
+- Reduce the number of features.
+
+Regularization reduces model complexity by penalizing large weights.
+
+---
+
+## 9. L2 Regularization
+
+L2 regularization penalizes the squared magnitude of the weights.
+
+### L2 Penalty
+
+$begin:math:display$
+\\lambda \\sum\_j w\_j\^2
+$end:math:display$
+
+The objective becomes:
+
+$begin:math:display$
+Loss \+ \\lambda \\sum\_j w\_j\^2
+$end:math:display$
+
+where:
+
+- `Loss` measures prediction error.
+- $begin:math:text$\\lambda$end:math:text$ controls regularization strength.
+
+### Effect
+
+```text
+Larger λ
+→ stronger penalty
+→ smaller weights
+→ lower model complexity
+→ potentially less overfitting
+```
+
+L2 usually shrinks weights toward zero but does not usually make many weights exactly zero.
+
+---
+
+## 10. Geometric Interpretation of L2
+
+Without regularization:
+
+```text
+Goal:
+minimize training loss
+```
+
+With L2 regularization:
+
+```text
+Goal:
+minimize loss + weight penalty
+```
+
+The L2 constraint has a circular shape in two dimensions.
+
+The optimal solution balances:
+
+```text
+small prediction error
++
+small weights
+```
+
+Increasing regularization strength makes large weights increasingly expensive.
+
+---
+
+## 11. L1 Regularization
+
+L1 regularization penalizes the absolute magnitude of the weights.
+
+### L1 Penalty
+
+$begin:math:display$
+\\lambda \\sum\_j \|w\_j\|
+$end:math:display$
+
+The objective becomes:
+
+$begin:math:display$
+Loss \+ \\lambda \\sum\_j \|w\_j\|
+$end:math:display$
+
+### Effect
+
+L1 can force some weights to become exactly zero.
+
+Example:
+
+```text
+w1 = 0
+w2 ≠ 0
+w3 = 0
+w4 ≠ 0
+```
+
+This is called a **sparse solution**.
+
+---
+
+## 12. Why L1 Produces Sparse Solutions
+
+In two dimensions:
+
+```text
+L2 constraint → circular shape
+
+L1 constraint → diamond shape
+```
+
+The L1 diamond has sharp corners on the coordinate axes.
+
+The optimal solution is therefore more likely to occur at a point where:
+
+```text
+w1 = 0
+```
+
+or:
+
+```text
+w2 = 0
+```
+
+This explains geometrically why L1 regularization tends to produce sparse solutions.
+
+---
+
+## 13. L1 as Feature Selection
+
+For a linear model:
+
+$begin:math:display$
+z \= w\_1x\_1 \+ w\_2x\_2 \+ \\cdots \+ w\_mx\_m \+ b
+$end:math:display$
+
+If:
+
+$begin:math:display$
+w\_j \= 0
+$end:math:display$
+
+then:
+
+$begin:math:display$
+w\_jx\_j \= 0
+$end:math:display$
+
+Therefore, feature $begin:math:text$x\_j$end:math:text$ has no effect on the model prediction.
+
+```text
+L1 regularization
+→ some weights become exactly 0
+→ corresponding features have no effect
+→ automatic feature selection
+```
+
+This makes L1 useful when a dataset contains many potentially irrelevant features.
+
+---
+
+## 14. L1 vs L2
+
+| Property | L1 | L2 |
+|---|---|---|
+| Penalty | $begin:math:text$\\sum \|w\_j\|$end:math:text$ | $begin:math:text$\\sum w\_j\^2$end:math:text$ |
+| Constraint shape | Diamond | Circle |
+| Shrinks weights | Yes | Yes |
+| Weights can become exactly 0 | Common | Usually not |
+| Sparse solution | Yes | Usually no |
+| Feature selection | Yes | Not directly |
+
+### Core Difference
+
+```text
+L2
+→ shrink weights toward 0
+→ usually not exactly 0
+
+L1
+→ shrink weights
+→ some can become exactly 0
+→ sparse solution
+→ feature selection
+```
+
+---
+
+## 15. Regularization in Logistic Regression
+
+Example using L1 regularization:
+
+```python
+from sklearn.linear_model import LogisticRegression
+
+lr = LogisticRegression(
+    penalty="l1",
+    C=1.0,
+    solver="liblinear"
+)
+
+lr.fit(X_train_std, y_train)
+```
+
+### Model Parameters
+
+```python
+lr.coef_
+```
+
+corresponds to the learned weights:
+
+$begin:math:display$
+w
+$end:math:display$
+
+```python
+lr.intercept_
+```
+
+corresponds to the learned bias:
+
+$begin:math:display$
+b
+$end:math:display$
+
+Therefore:
+
+```text
+coef_      → weights w
+intercept_ → bias b
+```
+
+---
+
+## 16. The Regularization Parameter C
+
+In scikit-learn Logistic Regression, `C` is inversely related to regularization strength.
+
+```text
+C ↓
+→ stronger regularization
+
+C ↑
+→ weaker regularization
+```
+
+Conceptually:
+
+$begin:math:display$
+C \\propto \\frac\{1\}\{\\lambda\}
+$end:math:display$
+
+Therefore:
+
+```text
+λ ↑ → regularization ↑
+C ↓ → regularization ↑
+```
+
+With L1 regularization:
+
+```text
+very small C
+→ strong regularization
+→ more weights may become 0
+→ sparser model
+```
+
+Example:
+
+```text
+C = 0.0001
+→ very strong regularization
+
+C = 100
+→ much weaker regularization
+```
+
+---
+
+## 17. Complete Machine Learning Pipeline
+
+The concepts from pp.117–127 can be combined into one workflow:
+
+```text
+Raw dataset
+    ↓
+Train-test split
+    ↓
+Fit preprocessing on training data only
+    ↓
+Transform training and test data
+    ↓
+Fit model on training data
+    ↓
+Regularization controls model complexity
+    ↓
+Evaluate on unseen test data
+```
+
+Example:
+
+```python
+# 1. Split the data
+X_train, X_test, y_train, y_test = train_test_split(
+    X,
+    y,
+    test_size=0.3,
+    random_state=0,
+    stratify=y
+)
+
+# 2. Learn scaling parameters from training data
+sc = StandardScaler()
+
+X_train_std = sc.fit_transform(X_train)
+X_test_std = sc.transform(X_test)
+
+# 3. Train the model
+lr = LogisticRegression(
+    penalty="l1",
+    C=1.0,
+    solver="liblinear"
+)
+
+lr.fit(X_train_std, y_train)
+
+# 4. Evaluate on unseen data
+test_accuracy = lr.score(X_test_std, y_test)
+```
+
+---
+
+## 18. Key Takeaways
+
+```text
+Train set
+→ learn preprocessing parameters and model parameters
+
+Test set
+→ evaluate generalization
+→ never use it to fit preprocessing
+```
+
+```text
+StandardScaler
+→ mean ≈ 0
+→ standard deviation ≈ 1
+→ does not make data normally distributed
+```
+
+```text
+MinMaxScaler
+→ usually maps features to [0, 1]
+```
+
+```text
+RobustScaler
+→ uses robust statistics such as median and quartiles
+→ useful when outliers are important
+```
+
+```text
+L2
+→ squared-weight penalty
+→ smaller weights
+→ reduced model complexity
+```
+
+```text
+L1
+→ absolute-weight penalty
+→ some weights exactly 0
+→ sparse solution
+→ feature selection
+```
+
+```text
+C ↓
+→ stronger regularization
+
+C ↑
+→ weaker regularization
+```
+
+### Final Mental Model
+
+```text
+Good preprocessing
+        +
+No data leakage
+        +
+Appropriate feature scaling
+        +
+Regularization
+        ↓
+Better control of model complexity
+        ↓
+Better generalization to unseen data
+```
