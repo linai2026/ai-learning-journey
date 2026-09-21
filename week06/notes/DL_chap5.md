@@ -546,3 +546,446 @@ Goal
 → balance bias and variance
 → good generalization
 ```
+
+
+---
+
+
+# Maximum Likelihood Estimation
+
+## 1. Maximum Likelihood Estimation (MLE)
+
+Maximum Likelihood Estimation chooses the model parameters that make the observed training data as likely as possible.
+
+Given training data:
+
+$begin:math:display$
+X \= \\\{x\^\{\(1\)\}\, x\^\{\(2\)\}\, \\dots\, x\^\{\(m\)\}\\\}
+$end:math:display$
+
+the maximum likelihood estimator is:
+
+$begin:math:display$
+\\theta\_\{ML\}
+\=
+\\arg\\max\_\{\\theta\} p\_\{\\text\{model\}\}\(X\;\\theta\)
+$end:math:display$
+
+The observed data $begin:math:text$X$end:math:text$ is fixed, while the parameters $begin:math:text$\\theta$end:math:text$ are optimized.
+
+### Key Idea
+
+$begin:math:display$
+\\boxed\{
+\\text\{Choose parameters that make the observed data most plausible\}
+\}
+$end:math:display$
+
+---
+
+## 2. Likelihood for i.i.d. Data
+
+If the training examples are independent and identically distributed (i.i.d.):
+
+$begin:math:display$
+p\(X\;\\theta\)
+\=
+\\prod\_\{i\=1\}\^\{m\}
+p\(x\^\{\(i\)\}\;\\theta\)
+$end:math:display$
+
+Therefore:
+
+$begin:math:display$
+\\theta\_\{ML\}
+\=
+\\arg\\max\_\{\\theta\}
+\\prod\_\{i\=1\}\^\{m\}
+p\(x\^\{\(i\)\}\;\\theta\)
+$end:math:display$
+
+---
+
+## 3. Log-Likelihood
+
+Instead of maximizing the product of probabilities, we usually maximize the log-likelihood:
+
+$begin:math:display$
+\\theta\_\{ML\}
+\=
+\\arg\\max\_\{\\theta\}
+\\sum\_\{i\=1\}\^\{m\}
+\\log p\(x\^\{\(i\)\}\;\\theta\)
+$end:math:display$
+
+This works because:
+
+$begin:math:display$
+\\log\(ab\)\=\\log a\+\\log b
+$end:math:display$
+
+so products become sums.
+
+### Why Use Log-Likelihood?
+
+- It prevents numerical underflow when multiplying many small probabilities.
+- Sums are easier to compute and differentiate than products.
+- The logarithm is strictly increasing, so it does not change the location of the maximum.
+
+Therefore:
+
+$begin:math:display$
+\\arg\\max\_\{\\theta\} L\(\\theta\)
+\=
+\\arg\\max\_\{\\theta\} \\log L\(\\theta\)
+$end:math:display$
+
+---
+
+## 4. Probability vs. Likelihood
+
+The mathematical expression may be the same, but the viewpoint is different.
+
+### Probability
+
+Fix the parameters and consider different possible data:
+
+$begin:math:display$
+p\(x\;\\theta\)
+$end:math:display$
+
+### Likelihood
+
+Fix the observed data and compare different parameters:
+
+$begin:math:display$
+L\(\\theta\;X\)
+$end:math:display$
+
+In MLE:
+
+$begin:math:display$
+\\boxed\{
+X \\text\{ is fixed\, while \} \\theta \\text\{ changes\}
+\}
+$end:math:display$
+
+---
+
+## 5. MLE and KL Divergence
+
+Ideally, we want the model distribution to match the true data distribution:
+
+$begin:math:display$
+p\_\{\\text\{model\}\}
+\\approx
+p\_\{\\text\{data\}\}
+$end:math:display$
+
+The training data defines an empirical distribution:
+
+$begin:math:display$
+\\hat p\_\{\\text\{data\}\}
+$end:math:display$
+
+The difference between the empirical distribution and the model distribution can be measured using KL divergence:
+
+$begin:math:display$
+D\_\{KL\}
+\(
+\\hat p\_\{\\text\{data\}\}
+\\Vert
+p\_\{\\text\{model\}\}
+\)
+$end:math:display$
+
+Maximum likelihood estimation can be interpreted as minimizing this difference:
+
+$begin:math:display$
+\\boxed\{
+\\text\{maximize likelihood\}
+\\Longleftrightarrow
+\\text\{minimize KL divergence\}
+\}
+$end:math:display$
+
+---
+
+## 6. Negative Log-Likelihood
+
+Maximizing log-likelihood is equivalent to minimizing negative log-likelihood (NLL):
+
+$begin:math:display$
+\\max\_\{\\theta\} \\log L\(\\theta\)
+\\Longleftrightarrow
+\\min\_\{\\theta\} \[\-\\log L\(\\theta\)\]
+$end:math:display$
+
+Therefore:
+
+$begin:math:display$
+\\boxed\{
+\\text\{MLE\}
+\\rightarrow
+\\text\{maximize log\-likelihood\}
+\\rightarrow
+\\text\{minimize NLL\}
+\}
+$end:math:display$
+
+This connects probability modeling directly to loss minimization in machine learning.
+
+---
+
+## 7. MLE and Cross-Entropy
+
+Minimizing negative log-likelihood is closely related to minimizing cross-entropy.
+
+For binary classification with a Bernoulli distribution:
+
+$begin:math:display$
+\\boxed\{
+\\text\{Binary Cross\-Entropy\}
+\=
+\\text\{Negative Log\-Likelihood\}
+\}
+$end:math:display$
+
+Therefore, for Logistic Regression:
+
+$begin:math:display$
+\\text\{maximize likelihood\}
+\\Longleftrightarrow
+\\text\{minimize BCE\}
+$end:math:display$
+
+This explains why Binary Cross-Entropy is a natural loss function for binary Logistic Regression.
+
+---
+
+## 8. Conditional Maximum Likelihood
+
+In supervised learning, we want to predict $begin:math:text$Y$end:math:text$ from $begin:math:text$X$end:math:text$.
+
+Therefore, we model the conditional probability:
+
+$begin:math:display$
+P\(Y\|X\;\\theta\)
+$end:math:display$
+
+The conditional maximum likelihood estimator is:
+
+$begin:math:display$
+\\theta\_\{ML\}
+\=
+\\arg\\max\_\{\\theta\}
+P\(Y\|X\;\\theta\)
+$end:math:display$
+
+For i.i.d. training examples:
+
+$begin:math:display$
+\\theta\_\{ML\}
+\=
+\\arg\\max\_\{\\theta\}
+\\sum\_\{i\=1\}\^\{m\}
+\\log
+P\(y\^\{\(i\)\}\|x\^\{\(i\)\}\;\\theta\)
+$end:math:display$
+
+### Key Idea
+
+$begin:math:display$
+\\boxed\{
+X \\text\{ is observed\}
+\\rightarrow
+\\text\{model the distribution of \} Y\|X
+\}
+$end:math:display$
+
+---
+
+## 9. Linear Regression as Maximum Likelihood
+
+Linear Regression predicts:
+
+$begin:math:display$
+\\hat y \= Xw\+b
+$end:math:display$
+
+Assume that the target $begin:math:text$y$end:math:text$, given $begin:math:text$x$end:math:text$, follows a Gaussian distribution:
+
+$begin:math:display$
+p\(y\|x\)
+\=
+\\mathcal\{N\}\(y\;\\hat y\,\\sigma\^2\)
+$end:math:display$
+
+The mean of this Gaussian distribution is the model prediction:
+
+$begin:math:display$
+\\hat y
+$end:math:display$
+
+Under this Gaussian assumption, maximizing the conditional log-likelihood is equivalent to minimizing the squared prediction error:
+
+$begin:math:display$
+\\sum\_\{i\=1\}\^\{m\}
+\\\|y\^\{\(i\)\}\-\\hat y\^\{\(i\)\}\\\|\^2
+$end:math:display$
+
+The Mean Squared Error is:
+
+$begin:math:display$
+MSE
+\=
+\\frac\{1\}\{m\}
+\\sum\_\{i\=1\}\^\{m\}
+\\\|y\^\{\(i\)\}\-\\hat y\^\{\(i\)\}\\\|\^2
+$end:math:display$
+
+Therefore:
+
+$begin:math:display$
+\\boxed\{
+\\text\{Gaussian assumption \+ MLE\}
+\\Longleftrightarrow
+\\text\{MSE minimization\}
+\}
+$end:math:display$
+
+This provides a probabilistic justification for using MSE in Linear Regression.
+
+---
+
+## 10. Properties of Maximum Likelihood
+
+### Consistency
+
+Under appropriate conditions, as the number of training examples increases:
+
+$begin:math:display$
+m \\rightarrow \\infty
+$end:math:display$
+
+the maximum likelihood estimate approaches the true parameter:
+
+$begin:math:display$
+\\hat\\theta\_\{ML\}
+\\rightarrow
+\\theta\_\{\\text\{true\}\}
+$end:math:display$
+
+Therefore:
+
+$begin:math:display$
+\\boxed\{
+\\text\{More data\}
+\\rightarrow
+\\text\{MLE approaches the true parameter\}
+\}
+$end:math:display$
+
+### Statistical Efficiency
+
+Different consistent estimators may require different amounts of data to achieve the same estimation accuracy.
+
+A statistically efficient estimator can estimate the true parameters accurately using fewer examples.
+
+Maximum likelihood estimators have desirable asymptotic efficiency properties under appropriate conditions.
+
+---
+
+## 11. Core Connections
+
+### Logistic Regression
+
+$begin:math:display$
+X
+\\rightarrow
+z\=Xw\+b
+\\rightarrow
+\\sigma\(z\)
+\\rightarrow
+P\(Y\|X\)
+\\rightarrow
+BCE
+$end:math:display$
+
+From the MLE perspective:
+
+$begin:math:display$
+\\boxed\{
+\\text\{Bernoulli likelihood\}
+\\rightarrow
+\\text\{Negative Log\-Likelihood\}
+\\rightarrow
+\\text\{BCE\}
+\}
+$end:math:display$
+
+### Linear Regression
+
+$begin:math:display$
+X
+\\rightarrow
+\\hat y\=Xw\+b
+\\rightarrow
+MSE
+$end:math:display$
+
+From the MLE perspective:
+
+$begin:math:display$
+\\boxed\{
+\\text\{Gaussian likelihood\}
+\\rightarrow
+\\text\{Negative Log\-Likelihood\}
+\\rightarrow
+\\text\{MSE\}
+\}
+$end:math:display$
+
+---
+
+## 12. Final Summary
+
+The central idea of Maximum Likelihood Estimation is:
+
+$begin:math:display$
+\\boxed\{
+\\text\{Choose parameters that make the observed data most likely\}
+\}
+$end:math:display$
+
+The main optimization relationship is:
+
+$begin:math:display$
+\\boxed\{
+\\text\{maximize likelihood\}
+\\Longleftrightarrow
+\\text\{maximize log\-likelihood\}
+\\Longleftrightarrow
+\\text\{minimize negative log\-likelihood\}
+\}
+$end:math:display$
+
+Important machine learning connections:
+
+$begin:math:display$
+\\boxed\{
+\\text\{Logistic Regression \+ Bernoulli\}
+\\rightarrow
+\\text\{BCE\}
+\}
+$end:math:display$
+
+$begin:math:display$
+\\boxed\{
+\\text\{Linear Regression \+ Gaussian\}
+\\rightarrow
+\\text\{MSE\}
+\}
+$end:math:display$
+
+MLE therefore provides a probabilistic foundation for many common machine learning loss functions.
