@@ -1705,3 +1705,335 @@ Better control of model complexity
         ↓
 Better generalization to unseen data
 ```
+
+---
+
+# Sequential Feature Selection
+
+## 1. Why Feature Selection?
+
+More features do not always produce a better model.
+
+A dataset may contain:
+
+- Irrelevant features
+- Redundant features
+- Noisy features
+
+Too many unnecessary features may cause:
+
+- Higher model complexity
+- Higher computational cost
+- Increased risk of overfitting
+- Curse of dimensionality
+
+Feature selection reduces dimensionality by keeping only useful features.
+
+---
+
+## 2. Feature Selection vs. Feature Extraction
+
+### Feature Selection
+
+Select a subset of the original features.
+
+Example:
+
+```text
+[x1, x2, x3, x4]
+        ↓
+[x1, x3]
+```
+
+The selected features are still original features.
+
+### Feature Extraction
+
+Create new features from the original features.
+
+Example:
+
+```text
+[x1, x2, x3, x4]
+        ↓
+[z1, z2]
+```
+
+The new features are transformations of the original features.
+
+---
+
+## 3. Sequential Backward Selection (SBS)
+
+Sequential Backward Selection is a greedy feature selection algorithm.
+
+The basic idea is:
+
+```text
+Start with all features
+        ↓
+Remove one feature
+        ↓
+Evaluate the resulting feature subset
+        ↓
+Keep the best-performing subset
+        ↓
+Repeat
+        ↓
+Stop when the desired number of features remains
+```
+
+### Example
+
+Suppose the current features are:
+
+```text
+[A, B, C, D]
+```
+
+SBS evaluates all subsets obtained by removing one feature:
+
+```text
+Remove A → [B, C, D] → score
+Remove B → [A, C, D] → score
+Remove C → [A, B, D] → score
+Remove D → [A, B, C] → score
+```
+
+If `[A, C, D]` gives the best validation performance:
+
+```text
+[A, B, C, D]
+        ↓
+[A, C, D]
+```
+
+Feature `B` is removed.
+
+The process is then repeated with `[A, C, D]`.
+
+---
+
+## 4. Why Is SBS a Greedy Algorithm?
+
+SBS makes the best choice at each individual step.
+
+It does not search through every possible sequence of feature removals to find the globally optimal solution.
+
+```text
+Greedy algorithm
+= locally best choice at each step
+≠ guaranteed global optimum
+```
+
+Greedy algorithms are generally much cheaper than exhaustive search.
+
+---
+
+## 5. Evaluating Feature Subsets
+
+Feature selection is part of the model-selection process.
+
+The training data can be divided into:
+
+```text
+Training data
+      ↓
+Training subset + Validation subset
+```
+
+For each candidate feature subset:
+
+```text
+Train model
+      ↓
+Predict validation data
+      ↓
+Calculate performance
+      ↓
+Compare candidate subsets
+```
+
+The best-performing subset is kept.
+
+The final test set should not be used to decide which features to select.
+
+```text
+Training set   → learn model parameters
+Validation set → select features / hyperparameters
+Test set       → final evaluation
+```
+
+Using the final test set for feature selection would make the test set part of the learning process.
+
+---
+
+## 6. Important SBS Parameters
+
+### `k_features`
+
+`k_features` specifies the desired number of remaining features.
+
+Example:
+
+```python
+k_features=3
+```
+
+means:
+
+```text
+All features
+    ↓
+...
+    ↓
+3 features
+    ↓
+Stop
+```
+
+---
+
+## 7. Main Logic of the SBS Implementation
+
+The implementation can be summarized as:
+
+```text
+Generate candidate subsets
+        ↓
+Train and evaluate each subset
+        ↓
+Choose the best subset
+        ↓
+Remove one feature
+        ↓
+Repeat
+```
+
+Important operations include:
+
+### Generate Candidate Subsets
+
+```python
+combinations(...)
+```
+
+Generates all candidate subsets containing one fewer feature.
+
+### Evaluate a Subset
+
+```python
+estimator.fit(...)
+pred = estimator.predict(...)
+score = scoring(...)
+```
+
+This means:
+
+```text
+Train model
+→ predict validation data
+→ calculate score
+```
+
+### Select the Best Subset
+
+```python
+best = np.argmax(scores)
+```
+
+Selects the candidate subset with the highest score.
+
+---
+
+## 8. SBS and KNN
+
+KNN can particularly benefit from feature selection because it depends heavily on distances between samples.
+
+With many dimensions:
+
+```text
+More dimensions
+      ↓
+Data becomes increasingly sparse
+      ↓
+Distances become less informative
+      ↓
+KNN performance may decrease
+```
+
+This problem is related to the **curse of dimensionality**.
+
+Removing irrelevant or redundant features can therefore improve KNN performance.
+
+---
+
+## 9. Fewer Features Can Still Be Useful
+
+Reducing the number of features does not necessarily improve accuracy.
+
+For example:
+
+```text
+13 features → Test accuracy = 96%
+3 features  → Test accuracy = 93%
+```
+
+The 3-feature model may still be useful because it can provide:
+
+- Lower computational cost
+- Lower data collection cost
+- Simpler models
+- Easier interpretation
+
+Therefore, feature selection involves a trade-off between predictive performance and model simplicity.
+
+---
+
+## 10. SBS vs. L1 Regularization
+
+Both methods can reduce the influence of unnecessary features, but they work differently.
+
+### L1 Regularization
+
+```text
+Strong L1 regularization
+        ↓
+Some weights become exactly 0
+        ↓
+Corresponding features have no effect
+```
+
+### SBS
+
+```text
+Start with all features
+        ↓
+Evaluate feature subsets
+        ↓
+Explicitly remove features
+```
+
+Therefore:
+
+```text
+L1 → makes some feature weights zero
+
+SBS → removes features from the dataset
+```
+
+---
+
+## Key Takeaways
+
+- More features do not always mean better performance.
+- Irrelevant, redundant, and noisy features can hurt a model.
+- Feature selection keeps a subset of the original features.
+- Feature extraction creates new features.
+- SBS starts with all features and removes them sequentially.
+- At each step, SBS keeps the best-performing candidate subset.
+- SBS is a greedy algorithm and does not guarantee a global optimum.
+- Feature selection should use validation data, not the final test set.
+- KNN can particularly benefit from dimensionality reduction because of the curse of dimensionality.
+- Fewer features can reduce computation, data collection cost, and model complexity.
+- L1 regularization can make feature weights zero, while SBS explicitly removes features.
