@@ -2037,3 +2037,487 @@ SBS → removes features from the dataset
 - KNN can particularly benefit from dimensionality reduction because of the curse of dimensionality.
 - Fewer features can reduce computation, data collection cost, and model complexity.
 - L1 regularization can make feature weights zero, while SBS explicitly removes features.
+
+
+---
+
+# Feature Importance with Random Forests
+
+## 1. Feature Importance vs. Feature Selection
+
+### Feature Importance
+
+Feature importance measures the **relative importance of each feature to a trained model**.
+
+It answers:
+
+> Which features are more important to the model's predictions?
+
+Example:
+
+```text
+Feature A → 0.40
+Feature B → 0.30
+Feature C → 0.20
+Feature D → 0.10
+```
+
+A larger value means that the feature is relatively more important to the model.
+
+Feature importance is **not accuracy**.
+
+For example:
+
+```text
+Feature importance = 0.18
+```
+
+does **not** mean:
+
+```text
+Accuracy = 18%
+```
+
+---
+
+### Feature Selection
+
+Feature selection decides **which features should be kept or removed**.
+
+```text
+Feature Importance
+        ↓
+Measure importance
+        ↓
+Choose a criterion or threshold
+        ↓
+Feature Selection
+        ↓
+Keep selected features
+```
+
+Therefore:
+
+```text
+Feature importance ≠ Feature selection
+```
+
+However, feature importance can be used as a criterion for feature selection.
+
+---
+
+## 2. Random Forest Feature Importance
+
+A Random Forest consists of many Decision Trees.
+
+Each tree makes splits using different features.
+
+Features that contribute more useful splits tend to receive higher feature importance.
+
+The importance values are aggregated across the trees in the forest.
+
+Conceptually:
+
+```text
+Training Data
+    ↓
+Random Forest
+    ↓
+Many Decision Trees
+    ↓
+Evaluate the contribution of features
+    ↓
+Feature Importance
+```
+
+The detailed mathematics of impurity-based feature importance is not necessary at this stage.
+
+---
+
+## 3. Training the Random Forest
+
+```python
+from sklearn.ensemble import RandomForestClassifier
+
+forest = RandomForestClassifier(
+    n_estimators=500,
+    random_state=1
+)
+
+forest.fit(X_train, y_train)
+```
+
+`fit()` trains the Random Forest model using the training data.
+
+Important:
+
+```text
+forest.fit()
+```
+
+does not directly mean:
+
+```text
+train feature importance
+```
+
+Instead:
+
+```text
+X_train, y_train
+        ↓
+forest.fit()
+        ↓
+trained Random Forest
+        ↓
+feature_importances_
+```
+
+Feature importance is information obtained from the **trained model**.
+
+---
+
+## 4. Accessing Feature Importance
+
+After fitting the Random Forest:
+
+```python
+importances = forest.feature_importances_
+```
+
+The order is important:
+
+```text
+fit model
+    ↓
+get feature_importances_
+```
+
+The importance values are normalized so that:
+
+```python
+importances.sum()
+```
+
+is approximately:
+
+```text
+1.0
+```
+
+For example:
+
+```text
+Proline          → 0.185
+Flavanoids       → 0.175
+Color intensity  → 0.144
+...
+```
+
+These numbers represent **relative importance**, not prediction accuracy.
+
+---
+
+## 5. Why Random Forest Usually Does Not Need Feature Scaling
+
+Decision Trees make decisions based mainly on feature ordering and thresholds.
+
+For example:
+
+```text
+Feature X < 5.2
+```
+
+Scaling the feature changes its numerical values but usually does not change their ordering.
+
+Therefore, tree-based models such as:
+
+```text
+Decision Tree
+Random Forest
+```
+
+generally do not require `StandardScaler`.
+
+This is different from distance-based models such as KNN and SVM with an RBF kernel.
+
+---
+
+## 6. Ranking Features
+
+Feature importance values can be sorted:
+
+```python
+indices = np.argsort(importances)[::-1]
+```
+
+First:
+
+```python
+np.argsort(importances)
+```
+
+returns indices that sort the importance values from smallest to largest.
+
+Then:
+
+```python
+[::-1]
+```
+
+reverses the order.
+
+The final result ranks features:
+
+```text
+highest importance
+        ↓
+...
+        ↓
+lowest importance
+```
+
+---
+
+## 7. Important Limitation: Correlated Features
+
+Random Forest feature importance has an important limitation when features are highly correlated.
+
+Suppose:
+
+```text
+Feature A ─┐
+           ├── contain similar information
+Feature B ─┘
+```
+
+The model may assign:
+
+```text
+Feature A → 0.30
+Feature B → 0.04
+```
+
+This does **not necessarily mean that Feature B contains little useful information**.
+
+Feature A may already capture much of the information that Feature B provides.
+
+Therefore, feature importance should be interpreted carefully when features are highly correlated.
+
+---
+
+## 8. Feature Selection with SelectFromModel
+
+Scikit-learn provides `SelectFromModel` to select features based on model importance.
+
+```python
+from sklearn.feature_selection import SelectFromModel
+
+sfm = SelectFromModel(
+    forest,
+    threshold=0.1,
+    prefit=True
+)
+```
+
+### `threshold=0.1`
+
+The threshold determines which features are selected.
+
+Conceptually:
+
+```text
+importance >= 0.1
+        ↓
+keep feature
+
+importance < 0.1
+        ↓
+remove feature
+```
+
+---
+
+### `prefit=True`
+
+`prefit=True` means:
+
+```text
+The model has already been fitted.
+```
+
+For example:
+
+```python
+forest.fit(X_train, y_train)
+
+sfm = SelectFromModel(
+    forest,
+    threshold=0.1,
+    prefit=True
+)
+```
+
+`SelectFromModel` can directly use the already-trained Random Forest.
+
+It does not need to fit the Random Forest again.
+
+---
+
+## 9. Transforming the Dataset
+
+After defining the feature selector:
+
+```python
+X_selected = sfm.transform(X_train)
+```
+
+Conceptually:
+
+```text
+Original X_train
+13 features
+      ↓
+SelectFromModel
+      ↓
+Importance threshold
+      ↓
+Selected X_train
+5 features
+```
+
+In the Wine dataset example, using a threshold of `0.1` selects five features:
+
+```text
+Proline
+Flavanoids
+Color intensity
+OD280/OD315 of diluted wines
+Alcohol
+```
+
+---
+
+## 10. Random Forest Importance vs. Sequential Feature Selection
+
+Both methods can be used for feature selection, but they work differently.
+
+### Sequential Feature Selection
+
+```text
+All features
+    ↓
+Try different feature subsets
+    ↓
+Evaluate model performance
+    ↓
+Select a subset
+```
+
+It selects features based on the performance of different feature subsets.
+
+### Random Forest Feature Importance
+
+```text
+Training data
+    ↓
+Train Random Forest
+    ↓
+feature_importances_
+    ↓
+Rank features
+    ↓
+Apply importance threshold
+    ↓
+Select features
+```
+
+The Random Forest approach uses feature importance learned from the trained model.
+
+---
+
+## 11. Avoiding Data Leakage
+
+Feature selection is part of the model-building process.
+
+Therefore, feature selection should be learned using the **training set**, not the test set.
+
+Correct idea:
+
+```text
+Training Set
+    ↓
+Train Random Forest
+    ↓
+Obtain feature importance
+    ↓
+Determine selected features
+```
+
+Then the same selected features can be applied to the test set.
+
+The test set must not be used to decide which features are important.
+
+Otherwise:
+
+```text
+Test information
+    ↓
+Feature selection
+    ↓
+Data leakage
+```
+
+---
+
+## 12. Complete Workflow
+
+The main workflow is:
+
+```text
+X_train, y_train
+        ↓
+fit Random Forest
+        ↓
+trained Random Forest
+        ↓
+feature_importances_
+        ↓
+rank features
+        ↓
+choose importance threshold
+        ↓
+SelectFromModel
+        ↓
+transform dataset
+        ↓
+selected features
+```
+
+The core sequence to remember is:
+
+```text
+fit
+→ feature_importances_
+→ threshold
+→ SelectFromModel
+→ transform
+```
+
+---
+
+## Key Takeaways
+
+- **Feature importance** measures the relative importance of features to a trained model.
+- **Feature selection** decides which features to keep or remove.
+- Feature importance and feature selection are related but are **not the same thing**.
+- A Random Forest can provide feature importance after `fit()`.
+- `forest.feature_importances_` contains the importance values.
+- Feature importance values sum to approximately `1.0`.
+- Feature importance is **not prediction accuracy**.
+- Random Forests generally do not require feature scaling.
+- Highly correlated features can make feature importance harder to interpret.
+- `SelectFromModel` can perform feature selection using model-based importance.
+- `threshold` determines which features are retained.
+- `prefit=True` means the model has **already been fitted**.
+- Feature selection must be learned from the **training set** to avoid data leakage.
